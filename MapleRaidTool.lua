@@ -4,6 +4,11 @@ SlashCmdList.FRAMESTK = function()
 		FrameStackTooltip_Toggle();
 end
 
+SLASH_RELOAD1 = "/rl"; -- new slash command for showing framestack tool
+SlashCmdList.RELOAD = function()
+		ReloadUI();
+end
+
 SLASH_MPTool1 = "/mp"; -- new slash command for showing framestack tool
 
 
@@ -32,12 +37,12 @@ frame:RegisterEvent("ADDON_LOADED")
 --local mebuff = UnitBuff(meTarget,1)
 
 frame:SetScript("OnEvent", function(self, event, ...)
-	--yellToPublic(content)
+	yellToPublic(content)
 end)
 
 function checkBuffs()
 
-	--yellToPublic(content)
+	yellToPublic(content)
 
 	if (me) then
 		local currentMembers = GetNumGroupMembers()
@@ -136,7 +141,8 @@ backLayerFrame.clBtn:SetText('清空BUFF');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
-                clearGroup(people_buff);
+                --clearGroup(people_buff);
+				checkZone();
             end)
 
 ---通知按钮			
@@ -147,7 +153,7 @@ backLayerFrame.clBtn:SetText('通知');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
-                --notifyRaid();
+                notifyRaid();
 				yellToPublic(content);
             end)	
 			

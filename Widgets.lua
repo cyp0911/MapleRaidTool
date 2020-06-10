@@ -99,16 +99,14 @@ function contains(list, x)
 end
 
 function assignBuff(class, slice, last)
-	if class == "德鲁伊" or  class == "牧师" or  class == "法师" or class == "术士" or class == "猎人" or class == "潜行者" then
-		local index = 1
-		for name, value in pairs(class_group[class]) do
-			if value ~= "" and index <=currentNumOfParties then
-				if true then
-					index = load_class_info(name, class, num_class[class], slice, index)
-				end
+	local index = 1
+	for name, value in pairs(class_group[class]) do
+		if value ~= "" and index <=currentNumOfParties then
+			if true then
+				index = load_class_info(name, class, num_class[class], slice, index)
 			end
-		end		
-	end
+		end
+	end		
 end
 
 
@@ -169,27 +167,31 @@ function load_class_info(name, class, groups, slice, index)
 		local includegroup = includeGroup(index, slice)
 		
 		if not contains(tankgroup, name) and not contains(shadowPriest, name) and includegroup ~= "" then
-			SendChatMessage("枫叶专属插件提醒：[" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", "WHISPER", "Common", name)
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", "WHISPER", "Common", name)
 		end
 		
 		if class == "牧师" and index <= #tankgroup + 1 and (not contains(shadowPriest, name)) and includegroup ~= "" then 
-			SendChatMessage("枫叶专属插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
 		end
 		return index + 1
 	elseif class == "术士" then
-		SendChatMessage("枫叶专属插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)	
-		SendChatMessage("枫叶专属插件提醒：[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", "WHISPER", "Common", name)
+		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)	
+		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", "WHISPER", "Common", name)
 		return index + 1
 	elseif class == "猎人" then
-		SendChatMessage("枫叶专属插件提醒：[" .. name .. "],你全程负责第[".. (index - 1) % 3 + 1 .. "] 次宁神，同时负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", "WHISPER", "Common", name)
+		if checkZone() == "raid" then 
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责第[".. (index - 1) % 3 + 1 .. "] 次宁神", "WHISPER", "Common", name)
+		end
+		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", "WHISPER", "Common", name)
 		return index + 1
 	elseif class == "战士" and contains(tankgroup, name) then
-		SendChatMessage("枫叶专属插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
+		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
 		return index + 1
-	elseif class == "潜行者" then
-		SendChatMessage("枫叶专属插件提醒：[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
+	elseif class == "潜行者" and checkZone() == "bwl" then
+		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
 		return index + 1
 	end
+	return index + 1
 end
 
 
@@ -221,5 +223,23 @@ function healTarget(index)
 		return aoeMage
 	end
 	return ""
+end
 
+function checkZone()
+	local zoneName = GetZoneText();
+	local greenDragonZone = {"辛特兰", "菲拉斯", "暮色森林", "灰谷"}
+	local raidZone = {"黑翼之巢", "熔火之心"}
+	local kzkZone = "诅咒之地"
+
+	if contains(greenDragonZone, zoneName) then
+		return "green"
+	elseif contains(raidZone, zoneName) then
+		return "raid"
+	elseif zoneName == "黑翼之巢" then
+		return "bwl"
+	elseif zoneName == kzkZone then
+		return "kzk"
+	end
+	
+	return ""
 end
