@@ -65,7 +65,6 @@ function checkBuffs()
 
 				if contains(aBuff, mybuff) then
 					buffCount = buffCount + 1
-					--SendChatMessage("你的第" .. buffCount .. "个BUFF是《" .. mybuff .. "》", "WHISPER", "Common", name)
 					buffs = getBuffName(buffs, mybuff)
 					wholeBuffNum = wholeBuffNum + 1
 				end
@@ -141,8 +140,7 @@ backLayerFrame.clBtn:SetText('清空BUFF');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
-                --clearGroup(people_buff);
-				checkZone();
+                clearGroup(people_buff);
             end)
 
 ---通知按钮			
@@ -166,7 +164,18 @@ backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
                 loadRaidGroup();
-            end)	
+            end)
+
+--检查Debuff按钮			
+backLayerFrame.clBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
+backLayerFrame.clBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -150);
+backLayerFrame.clBtn:SetSize(140,40);
+backLayerFrame.clBtn:SetText('检查Debuff');
+backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
+backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
+backLayerFrame.clBtn:SetScript("OnClick", function()
+				checkDebuffFromList(debuffCheckList);
+            end)
 
 --backLayerFrame:Hide();
 

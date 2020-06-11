@@ -1,7 +1,8 @@
 local tankgroup = {"枫叶牛", "杀戮天琪", "开心的土豆"}
 local warlockSpell = {"元素诅咒", "鲁莽诅咒", "暗影诅咒", "虚弱诅咒"}
 local signGroup = {"{rt8}", "{rt1}", "{rt2}", "{rt3}"}
-local rogueTask = {"人群【后】方最近柱子", "人群【前】最近柱子","人群【前】方第二根柱子","老3-BOSS专开人群柱子"}
+local rogueTask = {"人群【后】方最近柱子", "人群【前】最近柱子","人群【前】方第二根柱子","老3-BOSS专开人群柱子", "老1-替补控龙（防止T失手）","老1-替补控龙（防止T失手）"}
+local shamanTask = {"小红龙刷主T，打死不换目标，过量刷", "主刷T，适当近战链子"}
 local shadowPriest = {"岼凣"}
 local aoeMage = "从前的猫"
 local currentNumOfParties = 0
@@ -16,7 +17,7 @@ function clearGroup(table)
 			people_buff [k] = nil
 		end
 		print("数据清理完毕")
-		--SendChatMessage("Buff记录清空" , "SAY")
+		SendChatMessage("Buff记录清空" , "SAY")
 	end
 end
 
@@ -30,8 +31,8 @@ function getBuffName(buffs,currentBuff)
 end
 
 function yellToPublic(content)
-	local myRace = UnitRace("player")
-	if myRace ~= "矮人" then
+	local myFaction, myFactionCN = UnitFactionGroup("player")
+	if myFactionCN ~= "联盟" then
 		SendChatMessage(content,"channel",nil,1);
 		SendChatMessage(content,"yell");
 	else
@@ -70,6 +71,7 @@ function loadRaidGroup()
 	group_buff = {}
 	class_group = {}
 	num_class = {}
+	warLockTask = {}
 	--clearGroup(class_group);
 	initial_class_table()
 	if UnitInRaid("player") then
@@ -129,6 +131,7 @@ function initial_class_table()
 	num_class["德鲁伊"] = 0
 	num_class["术士"] = 0
 
+	warLockTask["task"] = {["spell"] = "name"}
 end
 
 
@@ -173,23 +176,37 @@ function load_class_info(name, class, groups, slice, index)
 		if class == "牧师" and index <= #tankgroup + 1 and (not contains(shadowPriest, name)) and includegroup ~= "" then 
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
 		end
-		return index + 1
+		
+		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" then 
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
+		end
 	elseif class == "术士" then
-		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)	
+		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)
+		warLockTask["task"][warlockSpell[(index - 1) % 4 + 1]] = name
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", "WHISPER", "Common", name)
-		return index + 1
 	elseif class == "猎人" then
 		if checkZone() == "raid" then 
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责第[".. (index - 1) % 3 + 1 .. "] 次宁神", "WHISPER", "Common", name)
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责第[".. index .. "] 次宁神", "WHISPER", "Common", name)
 		end
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", "WHISPER", "Common", name)
-		return index + 1
 	elseif class == "战士" and contains(tankgroup, name) then
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
-		return index + 1
+		if name == tankgroup[2] then
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上破甲，挫志怒吼和带上夜幕", "WHISPER", "Common", name)
+			warLockTask["task"]["破甲攻击"] = name
+			warLockTask["task"]["挫志怒吼"] = name
+			warLockTask["task"]["夜幕"] = name
+		end
 	elseif class == "潜行者" and checkZone() == "bwl" then
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
-		return index + 1
+	elseif class == "萨满祭司" then
+		if checkZone() == "bwl" then
+			if index <=4 then
+				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[index] .. ">", "WHISPER", "Common", name)
+			else
+				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[index] .. ">", "WHISPER", "Common", name)
+			end
+		end
 	end
 	return index + 1
 end
@@ -243,3 +260,4 @@ function checkZone()
 	
 	return ""
 end
+
