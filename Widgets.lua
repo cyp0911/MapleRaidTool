@@ -7,6 +7,7 @@ local shadowPriest = {"岼凣"}
 local aoeMage = "从前的猫"
 local currentNumOfParties = 0
 local mapleName = "枫叶牛"
+local greenTankAssigned = 0
 
 
 function clearGroup(table)
@@ -132,6 +133,7 @@ function initial_class_table()
 	num_class["术士"] = 0
 
 	warLockTask["task"] = {["spell"] = "name"}
+	greenTankAssigned = 0
 end
 
 
@@ -177,11 +179,14 @@ function load_class_info(name, class, groups, slice, index)
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
 		end
 		
-		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) then 
+		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) and checkZone() = raid then 
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
 		elseif class == "德鲁伊" and contains(tankgroup, name) then
-			warLockTask["task"]["精灵之火（野性）"] = name
+			warLockTask["task"]["精灵之火（野性）】"] = name
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上【精灵之火（野性）】 ！", "WHISPER", "Common", name)
+		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned < 7 then
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],绿龙任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			greenTankAssigned = greenTankAssigned + 1
 		end
 	elseif class == "术士" then
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)
@@ -205,10 +210,13 @@ function load_class_info(name, class, groups, slice, index)
 	elseif class == "萨满祭司" then
 		if checkZone() == "bwl" then
 			if index <=4 then
-				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[index] .. ">", "WHISPER", "Common", name)
+				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", "WHISPER", "Common", name)
 			else
-				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[index] .. ">", "WHISPER", "Common", name)
+				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", "WHISPER", "Common", name)
 			end
+		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned <7 then
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],绿龙任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			greenTankAssigned = greenTankAssigned + 1
 		end
 	end
 	return index + 1
