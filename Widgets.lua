@@ -80,6 +80,7 @@ function loadRaidGroup()
 			num_class[class] = num_class[class] + 1
 			remove_useless_element(class)
 			setTankGroup(name, subgroup, class)
+			setLootMethod(name)
 		end		
 		reArrageTank(tankgroup)
 		cal_slice()
@@ -168,7 +169,6 @@ function cal_slice()
 end
 
 function load_class_info(name, class, groups, slice, index)
-		print("every" .. name .. class)
 	if class == "德鲁伊" or class == "牧师" or class == "法师" then
 		local spell = spellname (class)
 		local includegroup = includeGroup(index, slice)
@@ -313,4 +313,22 @@ function checkIndex(group, element)
 		end
 	end
 	return 0
+end
+
+local lootMasters = {"枫叶老虎", "从前的猫", "啊我太难了", "吃了一个大龙", "开心的土豆", "丶三营长", "托尼托尼", "罗罗诺亚","大门五郎","开心的萝卜"}
+
+function setLootMethod(name)
+	lootmethod= GetLootMethod()
+	
+	affectingCombat = UnitAffectingCombat("unit");
+	print(affectingCombat)
+	
+	if name == "枫叶牛" and lootmethod ~= "master" and affectingCombat == false then
+		SetLootMethod("master", name);
+	elseif contains(lootMasters, name) and lootmethod ~= "master" and affectingCombat == false then
+		SetLootMethod("master", name);
+	elseif affectingCombat == true and lootmethod ~= "master" then
+		message("退出战斗后，记得改拾取！！！")
+		SendChatMessage("《归来》团队插件提醒：记得提醒团长战斗结束后改队长分配！！！", "YELL")
+	end
 end
