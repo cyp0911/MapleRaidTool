@@ -1,4 +1,4 @@
-local tankgroup = {"枫叶牛", "吃了一个大龙", "枫叶老虎"}
+local tankgroup = {}
 local warlockSpell = {"元素诅咒", "鲁莽诅咒", "暗影诅咒", "虚弱诅咒"}
 local signGroup = {"{rt8}", "{rt1}", "{rt2}", "{rt3}"}
 local rogueTask = {"人群【后】方最近柱子", "人群【前】最近柱子","人群【前】方第二根柱子","老3-BOSS专开人群柱子", "老1-替补控龙（防止T失手）","老1-替补控龙（防止T失手）"}
@@ -7,6 +7,7 @@ local shadowPriest = {"岼凣"}
 local aoeMage = "从前的猫"
 local currentNumOfParties = 0
 local mapleName = "枫叶牛"
+local greenTankAssigned = 1
 
 
 function clearGroup(table)
@@ -68,10 +69,6 @@ function loadRaidGroup()
 	local currentMembers = GetNumGroupMembers()
 	currentNumOfParties = math.ceil(currentMembers / 5)
 	print("当前团队成员：" .. currentMembers)
-	group_buff = {}
-	class_group = {}
-	num_class = {}
-	warLockTask = {}
 	--clearGroup(class_group);
 	initial_class_table()
 	if UnitInRaid("player") then
@@ -82,8 +79,9 @@ function loadRaidGroup()
 			class_group[class][name] = units
 			num_class[class] = num_class[class] + 1
 			remove_useless_element(class)
-		end
-	
+			setTankGroup(name, subgroup, class)
+		end		
+		reArrageTank(tankgroup)
 		cal_slice()
 	
 	elseif UnitInParty("player") then
@@ -103,16 +101,20 @@ end
 function assignBuff(class, slice, last)
 	local index = 1
 	for name, value in pairs(class_group[class]) do
-		if value ~= "" and index <=currentNumOfParties then
-			if true then
-				index = load_class_info(name, class, num_class[class], slice, index)
-			end
+		if value ~= "" then
+			index = load_class_info(name, class, num_class[class], slice, index)
 		end
 	end		
 end
 
 
 function initial_class_table()
+	group_buff = {}
+	class_group = {}
+	num_class = {}
+	warLockTask = {}
+	tankgroup = {}
+
 	class_group["潜行者"] = {["name"] = ""}
 	class_group["萨满祭司"] = {["name"] = ""}
 	class_group["猎人"] = {["name"] = ""}
@@ -132,6 +134,7 @@ function initial_class_table()
 	num_class["术士"] = 0
 
 	warLockTask["task"] = {["spell"] = "name"}
+	greenTankAssigned = 1
 end
 
 
@@ -146,7 +149,7 @@ function cal_slice()
 	slice_class = {}
 	class_last = {}
 	for key, value in pairs(num_class) do
-		print(key .. value)
+		--print(key .. value)
 		local reduant = 0
 		local slice = 0
 		if value ~=0 then
@@ -158,13 +161,14 @@ function cal_slice()
 			slice = currentNumOfParties
 			--class_last[key] = table.insert(0)
 		end
-		print("分为几组：" .. value .."每个人负责几个队伍：" .. slice .. " ,最后一组：" .. reduant)
+		--print("分为几组：" .. value .."每个人负责几个队伍：" .. slice .. " ,最后一组：" .. reduant)
 		assignBuff(key, slice, reduant)
 	end
 
 end
 
 function load_class_info(name, class, groups, slice, index)
+		print("every" .. name .. class)
 	if class == "德鲁伊" or class == "牧师" or class == "法师" then
 		local spell = spellname (class)
 		local includegroup = includeGroup(index, slice)
@@ -177,11 +181,16 @@ function load_class_info(name, class, groups, slice, index)
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
 		end
 		
-		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) then 
+		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) and checkZone() == "raid" then 
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
 		elseif class == "德鲁伊" and contains(tankgroup, name) then
-			warLockTask["task"]["精灵之火（野性）"] = name
+			warLockTask["task"]["精灵之火（野性）】"] = name
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上【精灵之火（野性）】 ！", "WHISPER", "Common", name)
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
+		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned < 7 then
+			print(greenTankAssigned)
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			greenTankAssigned = greenTankAssigned + 1
 		end
 	elseif class == "术士" then
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)
@@ -193,7 +202,7 @@ function load_class_info(name, class, groups, slice, index)
 		end
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", "WHISPER", "Common", name)
 	elseif class == "战士" and contains(tankgroup, name) then
-		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
+		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
 		if name == tankgroup[2] then
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", "WHISPER", "Common", name)
 			warLockTask["task"]["破甲攻击"] = name
@@ -205,10 +214,13 @@ function load_class_info(name, class, groups, slice, index)
 	elseif class == "萨满祭司" then
 		if checkZone() == "bwl" then
 			if index <=4 then
-				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[index] .. ">", "WHISPER", "Common", name)
+				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", "WHISPER", "Common", name)
 			else
-				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[index] .. ">", "WHISPER", "Common", name)
+				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", "WHISPER", "Common", name)
 			end
+		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned <7 then
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			greenTankAssigned = greenTankAssigned + 1
 		end
 	end
 	return index + 1
@@ -236,7 +248,7 @@ function includeGroup(index, slice)
 end
 
 function healTarget(index)
-	print("index" .. index .. " #tank" .. #tankgroup)
+	--print("index" .. index .. " #tank" .. #tankgroup)
 	if index <= #tankgroup then
 		return tankgroup[index]
 	elseif index == (#tankgroup + 1) then
@@ -250,6 +262,7 @@ function checkZone()
 	local greenDragonZone = {"辛特兰", "菲拉斯", "暮色森林", "灰谷"}
 	local raidZone = {"黑翼之巢", "熔火之心"}
 	local kzkZone = "诅咒之地"
+	local blueZone = "艾萨拉"
 
 	if contains(greenDragonZone, zoneName) then
 		return "green"
@@ -259,8 +272,45 @@ function checkZone()
 		return "bwl"
 	elseif zoneName == kzkZone then
 		return "kzk"
+	elseif zoneName == blueZone then
+		return "blue"	
 	end
 	
 	return ""
 end
 
+
+function setTankGroup(name, subgroup, class)
+	if subgroup == 1 then
+		if class == "战士" or class == "德鲁伊" then
+			tankgroup[#tankgroup + 1] = name
+		end
+	end
+end
+
+function reArrageTank(tankgroup)
+	local temp = ""
+	for i = 1, #tankgroup do
+		if tankgroup[i] == "枫叶牛" and i ~= 1 then
+			temp = tankgroup[1]
+			tankgroup[1] = tankgroup[i]
+			tankgroup[i] = temp
+		end
+		
+
+		if group_buff[tankgroup[i]]["职业"] == "德鲁伊" and #tankgroup > 2 and i ~= 3 then
+			temp = tankgroup[3]
+			tankgroup[3] = tankgroup[i]
+			tankgroup[i] = temp
+		end
+	end
+end
+
+function checkIndex(group, element)
+	for i=1, #group do
+		if group[i] == element then
+			return i
+		end
+	end
+	return 0
+end
