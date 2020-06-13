@@ -179,7 +179,7 @@ function load_class_info(name, class, groups, slice, index)
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
 		end
 		
-		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) and checkZone() = raid then 
+		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) and checkZone() == "raid" then 
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
 		elseif class == "德鲁伊" and contains(tankgroup, name) then
 			warLockTask["task"]["精灵之火（野性）】"] = name
