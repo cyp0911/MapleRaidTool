@@ -259,9 +259,10 @@ end
 
 function checkZone()
 	local zoneName = GetZoneText();
-	local greenDragonZone = {"辛特兰", "菲拉斯", "暮色森林", "灰谷", "艾萨拉"}
+	local greenDragonZone = {"辛特兰", "菲拉斯", "暮色森林", "灰谷"}
 	local raidZone = {"黑翼之巢", "熔火之心"}
 	local kzkZone = "诅咒之地"
+	local blueZone = "艾萨拉"
 
 	if contains(greenDragonZone, zoneName) then
 		return "green"
@@ -271,6 +272,8 @@ function checkZone()
 		return "bwl"
 	elseif zoneName == kzkZone then
 		return "kzk"
+	elseif zoneName == blueZone then
+		return "blue"	
 	end
 	
 	return ""
