@@ -9,6 +9,11 @@ SlashCmdList.RELOAD = function()
 		ReloadUI();
 end
 
+SLASH_CHECKBUFF1 = "/cb"; -- new slash command for showing framestack tool
+SlashCmdList.CHECKBUFF = function()
+		checkDebuffFromList(debuffCheckList);
+end
+
 SLASH_MPTool1 = "/mp"; -- new slash command for showing framestack tool
 
 

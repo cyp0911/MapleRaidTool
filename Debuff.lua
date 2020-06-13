@@ -5,19 +5,23 @@ debuffCheckList = {
 	["元素诅咒"] = 1,
 	["鲁莽诅咒"] = 1,
 	["暗影诅咒"] = 1,
+	["虚弱诅咒"] = 1,
 	["夜幕"] = 1,
-	["暗影易伤"] = 5,
 }
 
 
 function checkDebuff(debuffs, layers)		
-	for i=1,40 do
+	for i=1,16 do
 		local deBuffName, icon, number= UnitDebuff("target",i); 
 		if deBuffName then 
 			if deBuffName == debuffs then
 				--print(i.."="..deBuffName.."nubmer: "..number .. "datatype" .. type(number)) 
 				--print(i.."="..debuffs.."layers: "..layers .. "datatype" .. type(layers)) 
-				return number
+				if number > 0 then
+					return number
+				else
+					return 1
+				end
 			end
 		end
 	end

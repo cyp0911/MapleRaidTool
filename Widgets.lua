@@ -1,4 +1,4 @@
-local tankgroup = {"枫叶牛", "杀戮天琪", "开心的土豆"}
+local tankgroup = {"枫叶牛", "吃了一个大龙", "枫叶老虎"}
 local warlockSpell = {"元素诅咒", "鲁莽诅咒", "暗影诅咒", "虚弱诅咒"}
 local signGroup = {"{rt8}", "{rt1}", "{rt2}", "{rt3}"}
 local rogueTask = {"人群【后】方最近柱子", "人群【前】最近柱子","人群【前】方第二根柱子","老3-BOSS专开人群柱子", "老1-替补控龙（防止T失手）","老1-替补控龙（防止T失手）"}
@@ -177,8 +177,11 @@ function load_class_info(name, class, groups, slice, index)
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
 		end
 		
-		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" then 
+		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) then 
 			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
+		elseif class == "德鲁伊" and contains(tankgroup, name) then
+			warLockTask["task"]["精灵之火（野性）"] = name
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上【精灵之火（野性）】 ！", "WHISPER", "Common", name)
 		end
 	elseif class == "术士" then
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)
@@ -192,7 +195,7 @@ function load_class_info(name, class, groups, slice, index)
 	elseif class == "战士" and contains(tankgroup, name) then
 		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
 		if name == tankgroup[2] then
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上破甲，挫志怒吼和带上夜幕", "WHISPER", "Common", name)
+			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", "WHISPER", "Common", name)
 			warLockTask["task"]["破甲攻击"] = name
 			warLockTask["task"]["挫志怒吼"] = name
 			warLockTask["task"]["夜幕"] = name
