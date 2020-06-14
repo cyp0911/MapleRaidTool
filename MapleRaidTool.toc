@@ -10,3 +10,4 @@
 MapleRaidTool.lua
 Widgets.lua
 Debuff.lua
+invite.lua

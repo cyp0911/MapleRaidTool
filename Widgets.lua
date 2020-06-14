@@ -69,6 +69,7 @@ function loadRaidGroup()
 	local currentMembers = GetNumGroupMembers()
 	currentNumOfParties = math.ceil(currentMembers / 5)
 	print("当前团队成员：" .. currentMembers)
+	print("请注意：1队不要放奶德和KBZ，ZST和野D在一队自动识别！")
 	--clearGroup(class_group);
 	initial_class_table()
 	if UnitInRaid("player") then
@@ -106,6 +107,7 @@ function assignBuff(class, slice, last)
 			index = load_class_info(name, class, num_class[class], slice, index)
 		end
 	end		
+	debuffToggle = 1
 end
 
 

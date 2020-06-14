@@ -18,7 +18,6 @@ SLASH_MPTool1 = "/mp"; -- new slash command for showing framestack tool
 
 
 
-
 local frame = CreateFrame("Frame")
 local content ="归来公会一团，每周50分钟通BWL，活动时间每周日晚上8点，DKP，新人补分机制，组织世界BUFF，会内气氛和谐，活动很多，世界BOSS，马拉松等~有兴趣联系我~"
 local me = UnitName("player")
@@ -126,33 +125,33 @@ backLayerFrame:RegisterForDrag("LeftButton")
 backLayerFrame:SetScript("OnDragStart", frame.StartMoving)
 backLayerFrame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 
----记录按钮
+---记录全团世界BUFF
 backLayerFrame.rlBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
 backLayerFrame.rlBtn:SetPoint("CENTER", backLayerFrame, "TOP",-100, -70);
 backLayerFrame.rlBtn:SetSize(140,40);
-backLayerFrame.rlBtn:SetText('记录BUFF');
+backLayerFrame.rlBtn:SetText('记录全团世界BUFF');
 backLayerFrame.rlBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.rlBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.rlBtn:SetScript("OnClick", function()
                 checkBuffs();
             end)
 			
----清空按钮			
+---清空世界BUFF纪录			
 backLayerFrame.clBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
 backLayerFrame.clBtn:SetPoint("CENTER", backLayerFrame, "TOP",-100, -150);
 backLayerFrame.clBtn:SetSize(140,40);
-backLayerFrame.clBtn:SetText('清空BUFF');
+backLayerFrame.clBtn:SetText('清空世界BUFF纪录');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
                 clearGroup(people_buff);
             end)
 
----通知按钮			
+---通知己纪录世界BUFF			
 backLayerFrame.clBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
 backLayerFrame.clBtn:SetPoint("CENTER", backLayerFrame, "TOP",-100, -230);
 backLayerFrame.clBtn:SetSize(140,40);
-backLayerFrame.clBtn:SetText('通知');
+backLayerFrame.clBtn:SetText('通知纪录世界BUFF');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
@@ -160,27 +159,61 @@ backLayerFrame.clBtn:SetScript("OnClick", function()
 				yellToPublic(content);
             end)	
 			
----分配BUFF按钮			
+---分配团队BUFF			
 backLayerFrame.clBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
 backLayerFrame.clBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -70);
 backLayerFrame.clBtn:SetSize(140,40);
-backLayerFrame.clBtn:SetText('分配BUFF');
+backLayerFrame.clBtn:SetText('分配团队BUFF');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
                 loadRaidGroup();
             end)
 
---检查Debuff按钮			
+--检查Debuff			
 backLayerFrame.clBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
 backLayerFrame.clBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -150);
 backLayerFrame.clBtn:SetSize(140,40);
-backLayerFrame.clBtn:SetText('检查Debuff');
+backLayerFrame.clBtn:SetText('检查目标Debuff');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
 				checkDebuffFromList(debuffCheckList);
             end)
+			
+--世界BOSS组队
+myCheckButton = CreateFrame("CheckButton", "myCheckButton_GlobalName", backLayerFrame, "ChatConfigCheckButtonTemplate");
+myCheckButton:SetPoint("CENTER", backLayerFrame, "TOP",-150, -310);
+myCheckButton:SetSize(40,40);
+myCheckButton_GlobalNameText:SetText("开启组队");
+myCheckButton.tooltip = "点击开启自动组队模式";
+myCheckButton:SetScript("OnClick", 
+  function()
+		print("功能尚未完成")
+  end
+);
+
+--世界BOSS组队
+
+--myEditBox:SetPoint("CENTER", UIParent, "CENTER");
+--myEditBox:SetSize(40,40);
+--:SetText("开启组队");
+--myEditBox.tooltip = "This is where you place MouseOver Text.";
+
+
+--[[
+backLayerFrame.ckBtn = CreateFrame("CheckButton", "myCheckButton_GlobalName", parentFrame, "ChatConfigCheckButtonTemplate");
+backLayerFrame.ckBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -230);
+--backLayerFrame.ckBtn:SetSize(140,40);
+myCheckButton_GlobalName:SetText('世界BOSS组队');
+backLayerFrame.ckBtn.tooltip = "This is where you place MouseOver Text.";
+--backLayerFrame.ckBtn:SetNormalFontObject("GameFontNormalLarge");
+--backLayerFrame.ckBtn:SetHighlightFontObject("GameFontHighLightLarge");
+backLayerFrame.ckBtn:SetScript("OnClick", function()
+				print("checked")
+            end)
+--]]		
+
 
 --backLayerFrame:Hide();
 
