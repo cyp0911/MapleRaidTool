@@ -58,7 +58,7 @@ function checkBuffs()
 			local buffs = ""
 			local wholeBuffNum = 0
 
-			
+				
 			local currentMembers = GetNumGroupMembers()
 
 			local name,rank,subgroup,level,class = GetRaidRosterInfo(units)
@@ -114,7 +114,7 @@ end
 
 ----------------------------------------------------------
 local backLayerFrame = CreateFrame("Frame", "buffBackFrame", UIParent, "BasicFrameTemplateWithInset");
-backLayerFrame:SetSize(400,360);
+backLayerFrame:SetSize(400,450);
 backLayerFrame:SetPoint("Bottom", UIParent, "CENTER");
 backLayerFrame.title = backLayerFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal');
 backLayerFrame.title:SetPoint('CENTER', backLayerFrame.TitleBg, "CENTER", 0, 0);
@@ -163,7 +163,7 @@ backLayerFrame.clBtn:SetScript("OnClick", function()
 backLayerFrame.clBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
 backLayerFrame.clBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -70);
 backLayerFrame.clBtn:SetSize(140,40);
-backLayerFrame.clBtn:SetText('分配团队BUFF');
+backLayerFrame.clBtn:SetText('分配团队任务');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
@@ -181,25 +181,87 @@ backLayerFrame.clBtn:SetScript("OnClick", function()
 				checkDebuffFromList(debuffCheckList);
             end)
 			
+inviteCode = "233"
 --世界BOSS组队
-myCheckButton = CreateFrame("CheckButton", "myCheckButton_GlobalName", backLayerFrame, "ChatConfigCheckButtonTemplate");
+myCheckButton = CreateFrame("CheckButton", "myCheckButton_GlobalName", backLayerFrame, "UICheckButtonTemplate");
 myCheckButton:SetPoint("CENTER", backLayerFrame, "TOP",-150, -310);
 myCheckButton:SetSize(40,40);
-myCheckButton_GlobalNameText:SetText("开启组队");
-myCheckButton.tooltip = "点击开启自动组队模式";
-myCheckButton:SetScript("OnClick", 
-  function()
-		print("功能尚未完成")
-  end
-);
+myCheckButton_GlobalNameText:SetText("开启有团成员组队");
+myCheckButton.tooltip = "只组有团会员";
+inviteToggle = 0
+myCheckButton:SetScript("OnClick", function(self,event,arg1)
+		if self:GetChecked() then
+			SendChatMessage(welcomeWords .. "世界BOSS开组，请M我或者公会频道打：“".. inviteCode .."”，进组，当前组团最低会阶为积极分子" , "GUILD", "Common", sender)
+			inviteToggle = 1
+			print("inviteToggle" .. inviteToggle)
+		else
+			SendChatMessage(welcomeWords .. "组团暂停，请等候进一步通知" , "GUILD", "Common", sender)
+			inviteToggle = 0
+			bossCheckButton:SetChecked(false)
+			outsideButton:SetChecked(false)
+			print("inviteToggle" .. inviteToggle)
+		end
+  end)
+  
 
 --世界BOSS组队
+bossCheckButton = CreateFrame("CheckButton", "bossCheckButton_GlobalName", backLayerFrame, "UICheckButtonTemplate");
+bossCheckButton:SetPoint("CENTER", backLayerFrame, "TOP",-150, -350);
+bossCheckButton:SetSize(40,40);
+bossCheckButton_GlobalNameText:SetText("接纳全体会员");
+bossCheckButton.tooltip = "全体会员";
+bossCheckButton: SetScript("OnClick", function(self,event,arg1)
+		if self:GetChecked() then
+			SendChatMessage(welcomeWords .. "世界BOSS开组，请M我或者公会频道打：“".. inviteCode .."”，进组，当前组团接受全体会员" , "GUILD", "Common", sender)
+			inviteToggle = 2
+			myCheckButton:SetChecked(true)
+			print("inviteToggle" .. inviteToggle)
+		else
+			SendChatMessage(welcomeWords .. "目前组团只组有团成员和积极分子" , "GUILD", "Common", sender)
+			inviteToggle = 1
+			outsideButton:SetChecked(false)
+			print("inviteToggle" .. inviteToggle)
+		end
+  end)
 
---myEditBox:SetPoint("CENTER", UIParent, "CENTER");
---myEditBox:SetSize(40,40);
---:SetText("开启组队");
---myEditBox.tooltip = "This is where you place MouseOver Text.";
+--接受公会外成员
+outsideButton = CreateFrame("CheckButton", "outsideButton_GlobalName", backLayerFrame, "UICheckButtonTemplate");
+outsideButton:SetPoint("CENTER", backLayerFrame, "TOP",-150, -390);
+outsideButton:SetSize(40,40);
+outsideButton_GlobalNameText:SetText("接纳全服部落");
+outsideButton.tooltip = "接纳会外成员";
+inviteToggleOut = 0
+outsideButton: SetScript("OnClick", function(self,event,arg1)
+		if self:GetChecked() then
+			SendChatMessage(welcomeWords .. "世界BOSS开组，请M我或者公会频道打：“".. inviteCode .."”，进组，当前组团接受全体部落" , "GUILD", "Common", sender)
+			inviteToggle = 3
+			myCheckButton:SetChecked(true)
+			bossCheckButton:SetChecked(true)
+			print("inviteToggle" .. inviteToggle)
+		else
+			print("inviteToggle" .. inviteToggle)
+			SendChatMessage(welcomeWords .. "停止接受会外成员" , "GUILD", "Common", sender)
+			inviteToggle = 2
+			print("inviteToggle" .. inviteToggle)			
+		end
+  end)
+  
 
+-- 密语
+myEditBox = CreateFrame("EditBox", "WPDemoBox", backLayerFrame, "InputBoxTemplate");
+myEditBox:SetPoint("CENTER", backLayerFrame, "TOP",100, -310);
+myEditBox:SetSize(150, 40)
+myEditBox:SetAutoFocus(false)
+myEditBox:SetText("组队密码");
+myEditBox:SetCursorPosition(0)
+myEditBox:SetMaxLetters(3)
+myEditBox:SetNumeric()
+myEditBox:SetScript("OnEnterPressed", function(self)
+		self:ClearFocus()
+		inviteCode = myEditBox:GetText()
+		print("currentCode" .. inviteCode)
+  end)
+myEditBox:SetScript("OnEscapePressed", myEditBox.ClearFocus)
 
 --[[
 backLayerFrame.ckBtn = CreateFrame("CheckButton", "myCheckButton_GlobalName", parentFrame, "ChatConfigCheckButtonTemplate");

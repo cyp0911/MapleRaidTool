@@ -47,9 +47,9 @@ function checkDebuffFromList(debuffCheckList)
 		--print("require" .. requireLayer)
 		if requireLayer > 0 and warLockTask["task"][debuff] ~= nil then
 			if debuff ~= "夜幕" then
-				SendChatMessage("《归来》团队插件提醒：[" .. warLockTask["task"][debuff] .. "],速度上[" .. debuff .. "]!还差<".. requireLayer ..">层", "WHISPER", "Common", warLockTask["task"][debuff])
+				SendChatMessage(welcomeWords .. "[" .. warLockTask["task"][debuff] .. "],速度上[" .. debuff .. "]!还差<".. requireLayer ..">层", "WHISPER", "Common", warLockTask["task"][debuff])
 			elseif debuff == "夜幕" and warLockTask["task"][debuff] == "杀戮天琪" then
-				SendChatMessage("《归来》团队插件提醒：[" .. warLockTask["task"][debuff] .. "],速度上[" .. debuff .. "]!还差<".. requireLayer ..">层", "WHISPER", "Common", warLockTask["task"][debuff])
+				SendChatMessage(welcomeWords .. "[" .. warLockTask["task"][debuff] .. "],速度上[" .. debuff .. "]!还差<".. requireLayer ..">层", "WHISPER", "Common", warLockTask["task"][debuff])
 			end
 		end
 	end
