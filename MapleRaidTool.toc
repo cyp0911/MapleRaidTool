@@ -3,10 +3,11 @@
 ## Version: 11327
 ## Notes: Assign task, raid helper
 ## DefaultState: enabled
-## SavedVariables: group_buff, class_group, num_class, slice_class, class_last, warLockTask
+## SavedVariables: group_buff, class_group, num_class, slice_class, class_last, warLockTask, configs
 ## SavedVariablesPerCharacter: people_buff
 ## Author: Yinpeng Chen
 
 MapleRaidTool.lua
 Widgets.lua
 Debuff.lua
+invite.lua

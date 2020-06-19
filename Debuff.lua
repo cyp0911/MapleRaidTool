@@ -1,3 +1,6 @@
+debuffToggle = 0
+
+
 debuffCheckList = {
 	["破甲攻击"] = 5,
 	["挫志怒吼"] = 1,
@@ -30,6 +33,12 @@ end
 
 
 function checkDebuffFromList(debuffCheckList)
+	if debuffToggle == 0 then
+		message("请先分配团队BUFF和任务,然后选中目标后，点击本按钮！")
+	elseif UnitName("target") == nil then
+		message("请选中目标检查Debuff")
+	end
+	
 	for debuff, count in pairs(debuffCheckList) do
 		--print("检查".. debuff .. "层数" .. count)
 		local currentLayer = checkDebuff(debuff, count)
@@ -37,7 +46,13 @@ function checkDebuffFromList(debuffCheckList)
 		local requireLayer = count - currentLayer
 		--print("require" .. requireLayer)
 		if requireLayer > 0 and warLockTask["task"][debuff] ~= nil then
-			SendChatMessage("《归来》团队插件提醒：[" .. warLockTask["task"][debuff] .. "],速度上[" .. debuff .. "]!还差<".. requireLayer ..">层", "WHISPER", "Common", warLockTask["task"][debuff])
+			if debuff ~= "夜幕" then
+				SendChatMessage(welcomeWords .. "[" .. warLockTask["task"][debuff] .. "],速度上[" .. debuff .. "]!还差<".. requireLayer ..">层", "WHISPER", "Common", warLockTask["task"][debuff])
+			elseif debuff == "夜幕" and warLockTask["task"][debuff] == "杀戮天琪" then
+				SendChatMessage(welcomeWords .. "[" .. warLockTask["task"][debuff] .. "],速度上[" .. debuff .. "]!还差<".. requireLayer ..">层", "WHISPER", "Common", warLockTask["task"][debuff])
+			end
 		end
 	end
 end
+
+

@@ -69,6 +69,7 @@ function loadRaidGroup()
 	local currentMembers = GetNumGroupMembers()
 	currentNumOfParties = math.ceil(currentMembers / 5)
 	print("当前团队成员：" .. currentMembers)
+	print("请注意：1队不要放奶德和KBZ，ZST和熊T在一队自动识别！")
 	--clearGroup(class_group);
 	initial_class_table()
 	if UnitInRaid("player") then
@@ -106,6 +107,7 @@ function assignBuff(class, slice, last)
 			index = load_class_info(name, class, num_class[class], slice, index)
 		end
 	end		
+	debuffToggle = 1
 end
 
 
@@ -174,52 +176,52 @@ function load_class_info(name, class, groups, slice, index)
 		local includegroup = includeGroup(index, slice)
 		
 		if not contains(tankgroup, name) and not contains(shadowPriest, name) and includegroup ~= "" then
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .." [" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", "WHISPER", "Common", name)
 		end
 		
 		if class == "牧师" and index <= #tankgroup + 1 and (not contains(shadowPriest, name)) and includegroup ~= "" then 
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
 		end
 		
 		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) and checkZone() == "raid" then 
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
 		elseif class == "德鲁伊" and contains(tankgroup, name) then
 			warLockTask["task"]["精灵之火（野性）】"] = name
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上【精灵之火（野性）】 ！", "WHISPER", "Common", name)
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【精灵之火（野性）】 ！", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
 		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned < 7 then
 			print(greenTankAssigned)
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
 			greenTankAssigned = greenTankAssigned + 1
 		end
 	elseif class == "术士" then
-		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)
 		warLockTask["task"][warlockSpell[(index - 1) % 4 + 1]] = name
-		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", "WHISPER", "Common", name)
 	elseif class == "猎人" then
 		if checkZone() == "raid" then 
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责第[".. index .. "] 次宁神", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责第[".. index .. "] 次宁神", "WHISPER", "Common", name)
 		end
-		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", "WHISPER", "Common", name)
 	elseif class == "战士" and contains(tankgroup, name) then
-		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
 		if name == tankgroup[2] then
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", "WHISPER", "Common", name)
 			warLockTask["task"]["破甲攻击"] = name
 			warLockTask["task"]["挫志怒吼"] = name
 			warLockTask["task"]["夜幕"] = name
 		end
 	elseif class == "潜行者" and checkZone() == "bwl" then
-		SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
 	elseif class == "萨满祭司" then
 		if checkZone() == "bwl" then
 			if index <=4 then
-				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", "WHISPER", "Common", name)
+				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", "WHISPER", "Common", name)
 			else
-				SendChatMessage("《归来》团队插件提醒：[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", "WHISPER", "Common", name)
+				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", "WHISPER", "Common", name)
 			end
 		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned <7 then
-			SendChatMessage("《归来》团队插件提醒：[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
 			greenTankAssigned = greenTankAssigned + 1
 		end
 	end
@@ -329,6 +331,6 @@ function setLootMethod(name)
 		SetLootMethod("master", name);
 	elseif affectingCombat == true and lootmethod ~= "master" then
 		message("退出战斗后，记得改拾取！！！")
-		SendChatMessage("《归来》团队插件提醒：记得提醒团长战斗结束后改队长分配！！！", "YELL")
+		SendChatMessage(welcomeWords .. "记得提醒团长战斗结束后改队长分配！！！", "YELL")
 	end
 end
