@@ -21,13 +21,14 @@ end)
 
 
 function inviteSender(sender, message)
-	print("senders" .. sender .. message)
+	--print("senders" .. sender .. message)
 	if inviteToggle >= 1 then
 		if message == inviteCode then
 			local rankIndex, rank = getGuildRank(sender)
-			print("rankIndex" .. rankIndex)
+			--print("rankIndex" .. rankIndex)
 			if (rankIndex <= 8 and inviteToggle ==1) or (rankIndex <10 and inviteToggle == 2) or (inviteToggle == 3) then
 				InviteUnit(sender)
+				checkIfConvert()
 				if rank == "out" then
 					SendChatMessage(welcomeWords .. "【会外友人】你好，请速度上YY91162686，进不了频道请在团队吼，有专人拉，打工必须听指挥", "WHISPER", "Common", sender)
 				else
@@ -42,23 +43,34 @@ function inviteSender(sender, message)
 	end
 end
 
-
 function getGuildRank(nameIn)
 
 	numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers();
 	--print("numofonline" .. numOnlineMembers)
 	--SetGuildRosterShowOffline(true);
-	SetGuildRosterShowOffline(false);
+	SetGuildRosterShowOffline(true);
 	GuildRoster();
 	SortGuildRoster( "online" );
 	for i=1, numTotalMembers do
 		name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i);
-
 		if nameIn == name then
-			print("goster" .. name .. rankIndex .. zone .. status)
+			--print("goster" .. name .. rankIndex .. zone .. status)
 			return rankIndex, rank
 		end
 	end
 	return 20, "out"
 end
 
+function checkIfConvert(sender)
+	local currentMembers = GetNumGroupMembers()
+	local myName = UnitName("player")
+	if currentMembers >=2 then
+		ConvertToRaid()
+		if lootmethod ~= "master" then
+			setLootMethods(myName)
+		end
+	end
+	
+		
+
+end

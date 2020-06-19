@@ -81,7 +81,6 @@ function loadRaidGroup()
 			num_class[class] = num_class[class] + 1
 			remove_useless_element(class)
 			setTankGroup(name, subgroup, class)
-			setLootMethod(name)
 		end		
 		reArrageTank(tankgroup)
 		cal_slice()
@@ -117,6 +116,7 @@ function initial_class_table()
 	num_class = {}
 	warLockTask = {}
 	tankgroup = {}
+	buffTaskSaveGroup = {}
 
 	class_group["潜行者"] = {["name"] = ""}
 	class_group["萨满祭司"] = {["name"] = ""}
@@ -137,6 +137,7 @@ function initial_class_table()
 	num_class["术士"] = 0
 
 	warLockTask["task"] = {["spell"] = "name"}
+	buffTaskSaveGroup["技能"] = {["ID"] = "队伍"}
 	greenTankAssigned = 1
 end
 
@@ -145,6 +146,10 @@ end
 function remove_useless_element(class)
 	if class_group[class]["name"] ~= nil then
 		class_group[class]["name"]=nil
+	end
+	
+	if buffTaskSaveGroup["技能"]["ID"] ~= nil then
+		buffTaskSaveGroup["技能"]["ID"] = nil
 	end
 end
 
@@ -170,58 +175,59 @@ function cal_slice()
 
 end
 
+readChannel = "SAY"
 function load_class_info(name, class, groups, slice, index)
 	if class == "德鲁伊" or class == "牧师" or class == "法师" then
 		local spell = spellname (class)
 		local includegroup = includeGroup(index, slice)
 		
 		if not contains(tankgroup, name) and not contains(shadowPriest, name) and includegroup ~= "" then
-			SendChatMessage(welcomeWords .." [" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .." [" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", readChannel, "Common", name)
+			buffTaskSaveGroup[spell][name] = includeGroup
 		end
 		
-		if class == "牧师" and index <= #tankgroup + 1 and (not contains(shadowPriest, name)) and includegroup ~= "" then 
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", "WHISPER", "Common", name)
+		if class == "牧师" and index <= #tankgroup + 1 and (not contains(shadowPriest, name)) and includegroup ~= "" and checkZone() == "raid" then 
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", readChannel, "Common", name)
 		end
 		
 		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) and checkZone() == "raid" then 
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", readChannel, "Common", name)
 		elseif class == "德鲁伊" and contains(tankgroup, name) then
 			warLockTask["task"]["精灵之火（野性）】"] = name
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【精灵之火（野性）】 ！", "WHISPER", "Common", name)
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【精灵之火（野性）】 ！", readChannel, "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", readChannel, "Common", name)
 		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned < 7 then
-			print(greenTankAssigned)
-			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
 			greenTankAssigned = greenTankAssigned + 1
 		end
 	elseif class == "术士" then
-		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", readChannel, "Common", name)
 		warLockTask["task"][warlockSpell[(index - 1) % 4 + 1]] = name
-		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", readChannel, "Common", name)
 	elseif class == "猎人" then
 		if checkZone() == "raid" then 
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责第[".. index .. "] 次宁神", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责第[".. index .. "] 次宁神", readChannel, "Common", name)
 		end
-		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", readChannel, "Common", name)
 	elseif class == "战士" and contains(tankgroup, name) then
-		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", readChannel, "Common", name)
 		if name == tankgroup[2] then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", readChannel, "Common", name)
 			warLockTask["task"]["破甲攻击"] = name
 			warLockTask["task"]["挫志怒吼"] = name
 			warLockTask["task"]["夜幕"] = name
 		end
 	elseif class == "潜行者" and checkZone() == "bwl" then
-		SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", "WHISPER", "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", readChannel, "Common", name)
 	elseif class == "萨满祭司" then
 		if checkZone() == "bwl" then
 			if index <=4 then
-				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", "WHISPER", "Common", name)
+				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", readChannel, "Common", name)
 			else
-				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", "WHISPER", "Common", name)
+				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", readChannel, "Common", name)
 			end
 		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned <7 then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", "WHISPER", "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
 			greenTankAssigned = greenTankAssigned + 1
 		end
 	end
@@ -317,20 +323,19 @@ function checkIndex(group, element)
 	return 0
 end
 
-local lootMasters = {"枫叶老虎", "从前的猫", "啊我太难了", "吃了一个大龙", "开心的土豆", "丶三营长", "托尼托尼", "罗罗诺亚","大门五郎","开心的萝卜"}
+lootMasters = {"枫叶牛", "枫叶老虎", "从前的猫", "啊我太难了", "吃了一个大龙", "开心的土豆", "丶三营长", "托尼托尼", "罗罗诺亚","大门五郎","开心的萝卜", "艾泽拉夜刃", "大角顶你"}
 
-function setLootMethod(name)
+function setLootMethods(name)
 	lootmethod= GetLootMethod()
-	
+	local myName = UnitName("player")
 	affectingCombat = UnitAffectingCombat("unit");
-	print(affectingCombat)
 	
-	if name == "枫叶牛" and lootmethod ~= "master" and affectingCombat == false then
-		SetLootMethod("master", name);
-	elseif contains(lootMasters, name) and lootmethod ~= "master" and affectingCombat == false then
-		SetLootMethod("master", name);
+	if myName == "枫叶牛" and affectingCombat == false and lootmethod ~= "master" then
+		SetLootMethod("master", "枫叶牛");
 	elseif affectingCombat == true and lootmethod ~= "master" then
 		message("退出战斗后，记得改拾取！！！")
 		SendChatMessage(welcomeWords .. "记得提醒团长战斗结束后改队长分配！！！", "YELL")
+	else
+		SetLootMethod("master", myName);
 	end
 end

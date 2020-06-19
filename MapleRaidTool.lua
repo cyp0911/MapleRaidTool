@@ -144,7 +144,8 @@ backLayerFrame.clBtn:SetText('清空世界BUFF纪录');
 backLayerFrame.clBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.clBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.clBtn:SetScript("OnClick", function()
-                clearGroup(people_buff);
+                --clearGroup(people_buff);
+				--announceBuff()
             end)
 
 ---通知己纪录世界BUFF			
