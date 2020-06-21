@@ -24,7 +24,12 @@ function inviteSender(sender, message, event)
 	--print("senders" .. sender .. message .. event)
 	if configs["inviteToggle"] >= 1 then
 		if message == configs["inviteCode"] then
-			local rankIndex, rank = getGuildRank(sender)
+			if guildRosterDB[sender] == nil then
+				rankIndex, rank = getGuildRank(sender)
+			else
+				rankIndex = guildRosterDB[sender]["rankIndex"]
+				rank = guildRosterDB[sender]["rank"]
+			end
 			--print("rankIndex" .. rankIndex)
 			if (rankIndex <= 8 and configs["inviteToggle"] ==1) or (rankIndex <10 and configs["inviteToggle"] == 2) or (configs["inviteToggle"] == 3) then
 				InviteUnit(sender)
@@ -51,7 +56,6 @@ function notifyLocation(place)
 end
 
 function getGuildRank(nameIn)
-
 	numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers();
 	SetGuildRosterShowOffline(true);
 	GuildRoster();

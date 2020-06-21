@@ -16,8 +16,10 @@ end
 
 SLASH_MPTool1 = "/mp"; -- new slash command for showing framestack tool
 
+--分配BUFF，默认WHISPER
+readChannel = "WHISPER" 
+--组团工具，GUILD
 inviteAnnouce = "GUILD"
-inviteHeader = "世界BOSS"
 
 local frame = CreateFrame("Frame")
 local content ="归来公会一团，每周50分钟通BWL，活动时间每周日晚上8点，DKP，新人补分机制，组织世界BUFF，会内气氛和谐，活动很多，世界BOSS，马拉松等~有兴趣联系我~"
@@ -45,6 +47,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 	yellToPublic(content)
 	adjustInviteToggle(-1)
 	setCheckedBox()
+	guildRosterDBInitial()
 end)
 
 function checkBuffs()
@@ -204,10 +207,10 @@ myCheckButton_GlobalNameText:SetText("开启有团成员组队");
 myCheckButton.tooltip = "只组有团会员";
 myCheckButton:SetScript("OnClick", function(self,event,arg1)
 		if self:GetChecked() then
-			SendChatMessage(welcomeWords .. inviteHeader .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团最低会阶为积极分子" , inviteAnnouce, "Common", sender)
+			SendChatMessage(welcomeWords .. "<<" ..  configs["inviteHeader"] .. ">>" .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团最低会阶为积极分子" , inviteAnnouce, "Common", sender)
 			adjustInviteToggle(1)
 		else
-			SendChatMessage(welcomeWords .. inviteHeader .. "组团暂停，请等候进一步通知" , inviteAnnouce, "Common", sender)
+			SendChatMessage(welcomeWords .. "<<" .. configs["inviteHeader"] .. ">>" .. "组团暂停，请等候进一步通知" , inviteAnnouce, "Common", sender)
 			adjustInviteToggle(0)
 			bossCheckButton:SetChecked(false)
 			outsideButton:SetChecked(false)
@@ -223,12 +226,12 @@ bossCheckButton_GlobalNameText:SetText("接纳全体会员");
 bossCheckButton.tooltip = "全体会员";
 bossCheckButton: SetScript("OnClick", function(self,event,arg1)
 		if self:GetChecked() then
-			SendChatMessage(welcomeWords .. inviteHeader .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团接受全体会员" , inviteAnnouce, "Common", sender)
+			SendChatMessage(welcomeWords .. "<<" .. configs["inviteHeader"] .. ">>" .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团接受全体会员" , inviteAnnouce, "Common", sender)
 
 			adjustInviteToggle(2)
 			myCheckButton:SetChecked(true)
 		else
-			SendChatMessage(welcomeWords .. inviteHeader .. "目前组团只组有团成员和积极分子" , inviteAnnouce, "Common", sender)
+			SendChatMessage(welcomeWords .. "<<" .. configs["inviteHeader"] .. ">>" .. "目前组团只组有团成员和积极分子" , inviteAnnouce, "Common", sender)
 			adjustInviteToggle(1)
 			outsideButton:SetChecked(false)
 		end
@@ -242,7 +245,7 @@ outsideButton_GlobalNameText:SetText("接纳全服部落");
 outsideButton.tooltip = "接纳会外成员";
 outsideButton: SetScript("OnClick", function(self,event,arg1)
 		if self:GetChecked() then
-			SendChatMessage(welcomeWords .. inviteHeader .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团接受全体部落" , inviteAnnouce, "Common", sender)
+			SendChatMessage(welcomeWords .. "<<" .. configs["inviteHeader"] .. ">>" .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团接受全体部落" , inviteAnnouce, "Common", sender)
 			adjustInviteToggle(3)
 			myCheckButton:SetChecked(true)
 			bossCheckButton:SetChecked(true)
@@ -255,7 +258,7 @@ outsideButton: SetScript("OnClick", function(self,event,arg1)
 
 -- 密语
 myEditBox = CreateFrame("EditBox", "WPDemoBox", backLayerFrame, "InputBoxTemplate");
-myEditBox:SetPoint("CENTER", backLayerFrame, "TOP",100, -310);
+myEditBox:SetPoint("CENTER", backLayerFrame, "TOP",100, -380);
 myEditBox:SetSize(150, 40)
 myEditBox:SetAutoFocus(false)
 myEditBox:SetText("组队密码");
@@ -269,6 +272,45 @@ myEditBox:SetScript("OnEnterPressed", function(self)
 		print("组团密语设置为: " .. configs["inviteCode"])
   end)
 myEditBox:SetScript("OnEscapePressed", myEditBox.ClearFocus)
+
+--组队密码TEXT
+local Textframe = CreateFrame("Frame", "MyExampleFrame", myEditBox)
+Textframe:SetPoint("CENTER", myEditBox, "LEFT",25, -10);
+Textframe:SetSize(100, 50)
+Textframe.texture = Textframe:CreateTexture(nil, "BACKGROUND")
+Textframe.texture:SetAllPoints(true)
+--frame.texture:SetTexture(1, 1, 1, 0.5)
+Textframe.text = Textframe:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+Textframe.text:SetPoint("BOTTOM", Textframe, "TOP", 0, 0)
+Textframe.text:SetText("组队密码：")
+
+-- 前缀
+preEditBox = CreateFrame("EditBox", "preDemoBox", backLayerFrame, "InputBoxTemplate");
+preEditBox:SetPoint("CENTER", backLayerFrame, "TOP",100, -310);
+preEditBox:SetSize(150, 40)
+preEditBox:SetAutoFocus(false)
+preEditBox:SetText("喊话前缀");
+preEditBox:SetCursorPosition(0)
+preEditBox:SetScript("OnEnterPressed", function(self)
+		self:ClearFocus()
+		configs["inviteHeader"]= preEditBox:GetText()
+		
+		print("组团喊话前缀设置为: " .. configs["inviteHeader"])
+  end)
+preEditBox:SetScript("OnEscapePressed", preEditBox.ClearFocus)
+
+--组队密码TEXT
+local preTextframe = CreateFrame("Frame", "preBoxFrame", preEditBox)
+preTextframe:SetPoint("CENTER", preEditBox, "LEFT",25, -10);
+preTextframe:SetSize(100, 50)
+preTextframe.texture = preTextframe:CreateTexture(nil, "BACKGROUND")
+preTextframe.texture:SetAllPoints(true)
+--frame.texture:SetTexture(1, 1, 1, 0.5)
+preTextframe.text = preTextframe:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+preTextframe.text:SetPoint("BOTTOM", preTextframe, "TOP", 0, 0)
+preTextframe.text:SetText("喊话前缀：")
+
+
 
 --[[
 backLayerFrame.ckBtn = CreateFrame("CheckButton", "myCheckButton_GlobalName", parentFrame, "ChatConfigCheckButtonTemplate");
@@ -309,12 +351,37 @@ function adjustInviteToggle(toggle)
 	end
 	
 	if configs["inviteCode"] == nil then
-		configs = {}
 		configs["inviteCode"] = "233"
 		myEditBox:SetText("组队密码");
 	else
 		myEditBox:SetText(configs["inviteCode"]);
 	end
+	
+	if configs["inviteHeader"] == nil then
+		configs["inviteHeader"] = "世界BOSS"
+		preEditBox:SetText("如：世界BOSS");
+	else
+		preEditBox:SetText(configs["inviteHeader"]);
+	end
+end
+
+function guildRosterDBInitial()
+
+	if guildRosterDB == nil then
+		guildRosterDB = {}
+		guildRosterDB["player"] = {["rank"] = "破产"; ["rankIndex"] = 0}
+	end
+
+	numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers();
+	SetGuildRosterShowOffline(true);
+	SortGuildRoster( "online" );
+	GuildRoster();
+	
+	for i=1, numTotalMembers do
+		name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i);
+		guildRosterDB[name] = {["rank"] = rank; ["rankIndex"] = rankIndex}
+	end
+
 end
 
 function setCheckedBox()

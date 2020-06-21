@@ -4,7 +4,7 @@
 ## Version: 1.3
 ## Notes: Assign task, raid helper
 ## DefaultState: enabled
-## SavedVariables: group_buff, class_group, num_class, slice_class, class_last, warLockTask, configs, buffTaskSaveGroup
+## SavedVariables: group_buff, class_group, num_class, slice_class, class_last, warLockTask, configs, buffTaskSaveGroup, guildRosterDB
 ## SavedVariablesPerCharacter: people_buff
 ## Author: Yinpeng Chen
 
