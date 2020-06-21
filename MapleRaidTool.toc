@@ -1,9 +1,10 @@
 ## Interface: 11304
 ## Title: MapleRaidTool
-## Version: 11327
+## Title-zhCN: 枫叶团队专用工具
+## Version: 1.3
 ## Notes: Assign task, raid helper
 ## DefaultState: enabled
-## SavedVariables: group_buff, class_group, num_class, slice_class, class_last, warLockTask, configs
+## SavedVariables: group_buff, class_group, num_class, slice_class, class_last, warLockTask, configs, buffTaskSaveGroup
 ## SavedVariablesPerCharacter: people_buff
 ## Author: Yinpeng Chen
 

@@ -16,7 +16,8 @@ end
 
 SLASH_MPTool1 = "/mp"; -- new slash command for showing framestack tool
 
-
+inviteAnnouce = "GUILD"
+inviteHeader = "世界BOSS"
 
 local frame = CreateFrame("Frame")
 local content ="归来公会一团，每周50分钟通BWL，活动时间每周日晚上8点，DKP，新人补分机制，组织世界BUFF，会内气氛和谐，活动很多，世界BOSS，马拉松等~有兴趣联系我~"
@@ -42,6 +43,8 @@ frame:RegisterEvent("ADDON_LOADED")
 
 frame:SetScript("OnEvent", function(self, event, ...)
 	yellToPublic(content)
+	adjustInviteToggle(-1)
+	setCheckedBox()
 end)
 
 function checkBuffs()
@@ -181,25 +184,33 @@ backLayerFrame.clBtn:SetScript("OnClick", function()
 				checkDebuffFromList(debuffCheckList);
             end)
 			
-inviteCode = "233"
+--检查Buff			
+backLayerFrame.coBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
+backLayerFrame.coBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -230);
+backLayerFrame.coBtn:SetSize(140,40);
+backLayerFrame.coBtn:SetText('检查自身Buff');
+backLayerFrame.coBtn:SetNormalFontObject("GameFontNormalLarge");
+backLayerFrame.coBtn:SetHighlightFontObject("GameFontHighLightLarge");
+backLayerFrame.coBtn:SetScript("OnClick", function()
+				checkPersonalBuff(personBuffCheckList)
+            end)
+			
+			
 --世界BOSS组队
 myCheckButton = CreateFrame("CheckButton", "myCheckButton_GlobalName", backLayerFrame, "UICheckButtonTemplate");
 myCheckButton:SetPoint("CENTER", backLayerFrame, "TOP",-150, -310);
 myCheckButton:SetSize(40,40);
 myCheckButton_GlobalNameText:SetText("开启有团成员组队");
 myCheckButton.tooltip = "只组有团会员";
-inviteToggle = 0
 myCheckButton:SetScript("OnClick", function(self,event,arg1)
 		if self:GetChecked() then
-			SendChatMessage(welcomeWords .. "世界BOSS开组，请M我或者公会频道打：“".. inviteCode .."”，进组，当前组团最低会阶为积极分子" , "GUILD", "Common", sender)
-			inviteToggle = 1
-			print("inviteToggle" .. inviteToggle)
+			SendChatMessage(welcomeWords .. inviteHeader .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团最低会阶为积极分子" , inviteAnnouce, "Common", sender)
+			adjustInviteToggle(1)
 		else
-			SendChatMessage(welcomeWords .. "组团暂停，请等候进一步通知" , "GUILD", "Common", sender)
-			inviteToggle = 0
+			SendChatMessage(welcomeWords .. inviteHeader .. "组团暂停，请等候进一步通知" , inviteAnnouce, "Common", sender)
+			adjustInviteToggle(0)
 			bossCheckButton:SetChecked(false)
 			outsideButton:SetChecked(false)
-			print("inviteToggle" .. inviteToggle)
 		end
   end)
   
@@ -212,15 +223,14 @@ bossCheckButton_GlobalNameText:SetText("接纳全体会员");
 bossCheckButton.tooltip = "全体会员";
 bossCheckButton: SetScript("OnClick", function(self,event,arg1)
 		if self:GetChecked() then
-			SendChatMessage(welcomeWords .. "世界BOSS开组，请M我或者公会频道打：“".. inviteCode .."”，进组，当前组团接受全体会员" , "GUILD", "Common", sender)
-			inviteToggle = 2
+			SendChatMessage(welcomeWords .. inviteHeader .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团接受全体会员" , inviteAnnouce, "Common", sender)
+
+			adjustInviteToggle(2)
 			myCheckButton:SetChecked(true)
-			print("inviteToggle" .. inviteToggle)
 		else
-			SendChatMessage(welcomeWords .. "目前组团只组有团成员和积极分子" , "GUILD", "Common", sender)
-			inviteToggle = 1
+			SendChatMessage(welcomeWords .. inviteHeader .. "目前组团只组有团成员和积极分子" , inviteAnnouce, "Common", sender)
+			adjustInviteToggle(1)
 			outsideButton:SetChecked(false)
-			print("inviteToggle" .. inviteToggle)
 		end
   end)
 
@@ -230,19 +240,15 @@ outsideButton:SetPoint("CENTER", backLayerFrame, "TOP",-150, -390);
 outsideButton:SetSize(40,40);
 outsideButton_GlobalNameText:SetText("接纳全服部落");
 outsideButton.tooltip = "接纳会外成员";
-inviteToggleOut = 0
 outsideButton: SetScript("OnClick", function(self,event,arg1)
 		if self:GetChecked() then
-			SendChatMessage(welcomeWords .. "世界BOSS开组，请M我或者公会频道打：“".. inviteCode .."”，进组，当前组团接受全体部落" , "GUILD", "Common", sender)
-			inviteToggle = 3
+			SendChatMessage(welcomeWords .. inviteHeader .. "开组，请M我或者公会频道打：“".. configs["inviteCode"] .."”，进组，当前组团接受全体部落" , inviteAnnouce, "Common", sender)
+			adjustInviteToggle(3)
 			myCheckButton:SetChecked(true)
 			bossCheckButton:SetChecked(true)
-			print("inviteToggle" .. inviteToggle)
 		else
-			print("inviteToggle" .. inviteToggle)
-			SendChatMessage(welcomeWords .. "停止接受会外成员" , "GUILD", "Common", sender)
-			inviteToggle = 2
-			print("inviteToggle" .. inviteToggle)			
+			SendChatMessage(welcomeWords .. "停止接受会外成员" , inviteAnnouce, "Common", sender)
+			adjustInviteToggle(2)
 		end
   end)
   
@@ -258,8 +264,9 @@ myEditBox:SetMaxLetters(3)
 myEditBox:SetNumeric()
 myEditBox:SetScript("OnEnterPressed", function(self)
 		self:ClearFocus()
-		inviteCode = myEditBox:GetText()
-		print("currentCode" .. inviteCode)
+		configs["inviteCode"] = myEditBox:GetText()
+		
+		print("组团密语设置为: " .. configs["inviteCode"])
   end)
 myEditBox:SetScript("OnEscapePressed", myEditBox.ClearFocus)
 
@@ -287,5 +294,42 @@ SlashCmdList["MPTool"] = function()
 	end
 end
 
+function adjustInviteToggle(toggle)
+	if configs == nil and toggle == -1 then
+		configs = {}
+		configs["inviteToggle"] = 0
+	elseif toggle == 0 then
+		configs["inviteToggle"] = 0
+	elseif toggle == 1 then
+		configs["inviteToggle"] = 1
+	elseif toggle == 2 then
+		configs["inviteToggle"] = 2
+	elseif toggle == 3 then
+		configs["inviteToggle"] = 3
+	end
+	
+	if configs["inviteCode"] == nil then
+		configs = {}
+		configs["inviteCode"] = "233"
+		myEditBox:SetText("组队密码");
+	else
+		myEditBox:SetText(configs["inviteCode"]);
+	end
+end
+
+function setCheckedBox()
+	if configs["inviteToggle"] == 0 then
+		--print("0")
+	elseif configs["inviteToggle"] == 1 then
+		myCheckButton:SetChecked(true)
+	elseif configs["inviteToggle"] == 2 then
+		myCheckButton:SetChecked(true)
+		bossCheckButton:SetChecked(true)
+	elseif configs["inviteToggle"] == 3 then
+		myCheckButton:SetChecked(true)
+		bossCheckButton:SetChecked(true)
+		outsideButton:SetChecked(true)
+	end
+end
 
 
