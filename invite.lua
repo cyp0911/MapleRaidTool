@@ -25,10 +25,8 @@ function inviteSender(sender, message, event)
 	if configs["inviteToggle"] >= 1 then
 		if message == configs["inviteCode"] then
 			if guildRosterDB[sender] == nil then
-				print("test1")
 				rankIndex, rank = getGuildRank(sender)
 			else
-				print("test2")
 				rankIndex = guildRosterDB[sender]["rankIndex"]
 				rank = guildRosterDB[sender]["rank"]
 			end
