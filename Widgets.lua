@@ -8,7 +8,6 @@ local aoeMage = "从前的猫"
 local currentNumOfParties = 0
 local mapleName = "枫叶牛"
 local greenTankAssigned = 1
-readChannel = "WHISPER"
 
 
 function clearGroup(table)
