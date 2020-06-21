@@ -18,8 +18,8 @@ SLASH_MPTool1 = "/mp"; -- new slash command for showing framestack tool
 
 --分配BUFF，默认WHISPER
 readChannel = "WHISPER" 
---组团工具，默认GUILD
-inviteAnnouce = "SAY"
+--组团工具，GUILD
+inviteAnnouce = "GUILD"
 
 local frame = CreateFrame("Frame")
 local content ="归来公会一团，每周50分钟通BWL，活动时间每周日晚上8点，DKP，新人补分机制，组织世界BUFF，会内气氛和谐，活动很多，世界BOSS，马拉松等~有兴趣联系我~"
@@ -366,7 +366,8 @@ function adjustInviteToggle(toggle)
 end
 
 function guildRosterDBInitial()
-	if guildRosterDB = nil then
+
+	if guildRosterDB == nil then
 		guildRosterDB = {}
 		guildRosterDB["player"] = {["rank"] = "破产"; ["rankIndex"] = 0}
 	end
@@ -378,9 +379,9 @@ function guildRosterDBInitial()
 	
 	for i=1, numTotalMembers do
 		name, rank, rankIndex, level, class, zone, note, officernote, online, status = GetGuildRosterInfo(i);
-		guildRosterDB[name]["rank"] = rank
-		guildRosterDB[name]["rankIndex"] = rankIndex
+		guildRosterDB[name] = {["rank"] = rank; ["rankIndex"] = rankIndex}
 	end
+
 end
 
 function setCheckedBox()
