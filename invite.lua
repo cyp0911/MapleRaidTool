@@ -6,7 +6,7 @@ inviteGuildFrame:RegisterEvent("CHAT_MSG_GUILD")
 
 inviteGuildFrame:SetScript("OnEvent", function(self, event, message, sender, ...)
 
-	inviteSender(sender, message)
+	inviteSender(sender, message, event)
 	
 end)
 
@@ -15,18 +15,18 @@ inviteWhisperFrame:RegisterEvent("CHAT_MSG_WHISPER")
 
 inviteWhisperFrame:SetScript("OnEvent", function(self, event, message, sender, ...)
 
-	inviteSender(sender, message)
+	inviteSender(sender, message, event)
 	
 end)
 
 
-function inviteSender(sender, message)
-	--print("senders" .. sender .. message)
-	if inviteToggle >= 1 then
-		if message == inviteCode then
+function inviteSender(sender, message, event)
+	--print("senders" .. sender .. message .. event)
+	if configs["inviteToggle"] >= 1 then
+		if message == configs["inviteCode"] then
 			local rankIndex, rank = getGuildRank(sender)
 			--print("rankIndex" .. rankIndex)
-			if (rankIndex <= 8 and inviteToggle ==1) or (rankIndex <10 and inviteToggle == 2) or (inviteToggle == 3) then
+			if (rankIndex <= 8 and configs["inviteToggle"] ==1) or (rankIndex <10 and configs["inviteToggle"] == 2) or (configs["inviteToggle"] == 3) then
 				InviteUnit(sender)
 				checkIfConvert()
 				if rank == "out" then
@@ -39,15 +39,20 @@ function inviteSender(sender, message)
 			else 
 				SendChatMessage(welcomeWords .. "会外朋友您好，打工请输入微信群密语，消费请报上消费部件，谢谢。如果进组请提前进入YY91162686待命！世界BOSS微信群请加yinpeng911入群", "WHISPER", "Common", sender)
 			end
+			if checkZone() ~= "city" and (checkZone() == "green" or checkZone() == "blue" or checkZone() == "kzk") then
+				notifyLocation(GetZoneText())
+			end
 		end
 	end
+end
+
+function notifyLocation(place)
+	--SendChatMessage(welcomeWords .. "速度上YY91162686，不跑的都是老板，不分G，当前集合位置：" .. place, "RAID_WARNING", "Common", sender)
 end
 
 function getGuildRank(nameIn)
 
 	numTotalMembers, numOnlineMaxLevelMembers, numOnlineMembers = GetNumGuildMembers();
-	--print("numofonline" .. numOnlineMembers)
-	--SetGuildRosterShowOffline(true);
 	SetGuildRosterShowOffline(true);
 	GuildRoster();
 	SortGuildRoster( "online" );
@@ -70,7 +75,5 @@ function checkIfConvert(sender)
 			setLootMethods(myName)
 		end
 	end
-	
-		
-
 end
+

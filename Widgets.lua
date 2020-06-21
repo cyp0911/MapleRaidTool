@@ -8,6 +8,7 @@ local aoeMage = "从前的猫"
 local currentNumOfParties = 0
 local mapleName = "枫叶牛"
 local greenTankAssigned = 1
+readChannel = "WHISPER"
 
 
 function clearGroup(table)
@@ -117,6 +118,7 @@ function initial_class_table()
 	warLockTask = {}
 	tankgroup = {}
 	buffTaskSaveGroup = {}
+	personal_buff = {}
 
 	class_group["潜行者"] = {["name"] = ""}
 	class_group["萨满祭司"] = {["name"] = ""}
@@ -148,9 +150,11 @@ function remove_useless_element(class)
 		class_group[class]["name"]=nil
 	end
 	
+	--[[
 	if buffTaskSaveGroup["技能"]["ID"] ~= nil then
 		buffTaskSaveGroup["技能"]["ID"] = nil
 	end
+	--]]
 end
 
 function cal_slice()
@@ -175,7 +179,6 @@ function cal_slice()
 
 end
 
-readChannel = "SAY"
 function load_class_info(name, class, groups, slice, index)
 	if class == "德鲁伊" or class == "牧师" or class == "法师" then
 		local spell = spellname (class)
@@ -183,7 +186,7 @@ function load_class_info(name, class, groups, slice, index)
 		
 		if not contains(tankgroup, name) and not contains(shadowPriest, name) and includegroup ~= "" then
 			SendChatMessage(welcomeWords .." [" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", readChannel, "Common", name)
-			buffTaskSaveGroup[spell][name] = includeGroup
+			print(spell .. name .. includegroup)
 		end
 		
 		if class == "牧师" and index <= #tankgroup + 1 and (not contains(shadowPriest, name)) and includegroup ~= "" and checkZone() == "raid" then 
@@ -196,6 +199,7 @@ function load_class_info(name, class, groups, slice, index)
 			warLockTask["task"]["精灵之火（野性）】"] = name
 			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【精灵之火（野性）】 ！", readChannel, "Common", name)
 			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", readChannel, "Common", name)
+			return index
 		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned < 7 then
 			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
 			greenTankAssigned = greenTankAssigned + 1
@@ -234,6 +238,16 @@ function load_class_info(name, class, groups, slice, index)
 	return index + 1
 end
 
+function buffSaver(name, index, slice, class)
+	local spell = ""
+	if class == "德鲁伊" then
+		return " <<野性赐福>>爪子"
+	elseif class == "牧师" then
+		return "<<耐力，精神，暗抗>>"
+	elseif class == "法师" then
+		return "<<智力,抑制>>"
+	end
+end
 
 function spellname(class)
 	if class == "德鲁伊" then
@@ -249,7 +263,7 @@ function includeGroup(index, slice)
 	local includegroup = ""	
 	for i=(index - 1)  * slice + 1, index * slice do
 			if i < 9 then
-				includegroup = includegroup .. "[".. i .."] "
+				includegroup = includegroup .. "[".. i .."]"
 			end
 		end
 	return includegroup
@@ -271,6 +285,7 @@ function checkZone()
 	local raidZone = {"黑翼之巢", "熔火之心"}
 	local kzkZone = "诅咒之地"
 	local blueZone = "艾萨拉"
+	local city = {"奥格瑞玛", "幽暗城", "雷霆崖"}
 
 	if contains(greenDragonZone, zoneName) then
 		return "green"
@@ -281,7 +296,9 @@ function checkZone()
 	elseif zoneName == kzkZone then
 		return "kzk"
 	elseif zoneName == blueZone then
-		return "blue"	
+		return "blue"
+	elseif contains(city, zoneName) then
+		return "city"
 	end
 	
 	return ""

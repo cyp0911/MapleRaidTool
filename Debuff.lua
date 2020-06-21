@@ -13,6 +13,10 @@ debuffCheckList = {
 }
 
 
+personBuffCheckList = {"泰坦合剂", "猫鼬药剂", "巨人药剂", "冬泉火酒", "战斗怒吼"}
+
+
+
 function checkDebuff(debuffs, layers)		
 	for i=1,16 do
 		local deBuffName, icon, number= UnitDebuff("target",i); 
@@ -55,4 +59,27 @@ function checkDebuffFromList(debuffCheckList)
 	end
 end
 
+function checkPersonalBuff(personBuffCheckList)
+	currentBuffList = {}
+	local myName = UnitName("player")
+	for i = 1, 32 do
+		local mybuff = UnitBuff(myName, i)
+		table.insert(currentBuffList, mybuff)
+	end
+				
+	for i = 1, #personBuffCheckList do
+		if not contains(currentBuffList, personBuffCheckList[i]) then
+			SendChatMessage(welcomeWords .. "自身BUFF还差：" .. personBuffCheckList[i], "WHISPER", "Common", myName)
+		end
+	end
+	
+	local fireTotem = "火焰防护图腾"
+	local naturalTotem = "自然防护图腾"
+	
+	if not contains(currentBuffList, fireTotem) and checkZone() == "raid" then
+		SendChatMessage(welcomeWords .. "插" .. fireTotem .. "!", "WHISPER", "Common", myName)
+	elseif not contains(currentBuffList, naturalTotem) and checkZone() == "green" then
+		SendChatMessage(welcomeWords .. "插" .. naturalTotem .. "!", "WHISPER", "Common", myName)
+	end
+end
 
