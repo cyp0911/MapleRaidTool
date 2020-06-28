@@ -60,13 +60,14 @@ function checkDebuffFromList(debuffCheckList)
 end
 
 function checkPersonalBuff(personBuffCheckList)
+	print("dida")
 	currentBuffList = {}
 	local myName = UnitName("player")
 	for i = 1, 32 do
 		local mybuff = UnitBuff(myName, i)
 		table.insert(currentBuffList, mybuff)
 	end
-				
+		
 	for i = 1, #personBuffCheckList do
 		if not contains(currentBuffList, personBuffCheckList[i]) then
 			SendChatMessage(welcomeWords .. "自身BUFF还差：" .. personBuffCheckList[i], "WHISPER", "Common", myName)
@@ -84,14 +85,14 @@ function checkPersonalBuff(personBuffCheckList)
 end
 
 function raidBuffAnounce()
-	print("antest")
 	for i = 1, 8 do
-		print("antest2" .. i)
-		local partyText = "【" .. tostring(i) .. "】队Buff："
-		for spell, name in pairs(buff_order[tostring(i)]) do
-			partyText = partyText .. spell .. "-(" .. name .. "), " 
+		if buff_order[tostring(i)] ~= nil then
+			local partyText = "【" .. tostring(i) .. "】队Buff："
+			for spell, name in pairs(buff_order[tostring(i)]) do
+				partyText = partyText .. spell .. "-(" .. name .. "), " 
+			end
+			SendChatMessage(partyText, "RAID", "Common", name)
 		end
-		SendChatMessage(partyText, "RAID", "Common", name)
 	end
 end
 
