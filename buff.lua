@@ -1,13 +1,12 @@
-local tankgroup = {}
-local warlockSpell = {"元素诅咒", "鲁莽诅咒", "暗影诅咒", "虚弱诅咒"}
-local signGroup = {"{rt8}", "{rt1}", "{rt2}", "{rt3}"}
-local rogueTask = {"人群【后】方最近柱子", "人群【前】最近柱子","人群【前】方第二根柱子","老3-BOSS专开人群柱子", "老1-替补控龙（防止T失手）","老1-替补控龙（防止T失手）"}
-local shamanTask = {"小红龙刷主T，打死不换目标，过量刷", "主刷T，适当近战链子"}
-local shadowPriest = {"岼凣"}
-local aoeMage = "从前的猫"
-local currentNumOfParties = 0
-local mapleName = "枫叶牛"
-local greenTankAssigned = 1
+tankgroup = {}
+warlockSpell = {"元素诅咒", "鲁莽诅咒", "暗影诅咒", "虚弱诅咒"}
+rogueTask = {"人群【后】方最近柱子", "人群【前】最近柱子","人群【前】方第二根柱子","老3-BOSS专开人群柱子", "老1-替补控龙（防止T失手）","老1-替补控龙（防止T失手）"}
+shamanTask = {"小红龙刷主T，打死不换目标，过量刷", "主刷T，适当近战链子"}
+shadowPriest = {"岼凣"}
+aoeMage = "从前的猫"
+currentNumOfParties = 0
+mapleName = "枫叶牛"
+greenTankAssigned = 1
 
 
 function clearGroup(table)
@@ -84,7 +83,8 @@ function loadRaidGroup()
 		end		
 		reArrageTank(tankgroup)
 		cal_slice()
-	
+				print("debug1")
+
 	elseif UnitInParty("player") then
 		print("您在队伍内！")
 	else
@@ -118,6 +118,8 @@ function initial_class_table()
 	tankgroup = {}
 	buffTaskSaveGroup = {}
 	personal_buff = {}
+	buff_order = {}
+
 
 	class_group["潜行者"] = {["name"] = ""}
 	class_group["萨满祭司"] = {["name"] = ""}
@@ -136,7 +138,8 @@ function initial_class_table()
 	num_class["法师"] = 0
 	num_class["德鲁伊"] = 0
 	num_class["术士"] = 0
-
+	
+	buff_order["1"] = {["name"] = ""}
 	warLockTask["task"] = {["spell"] = "name"}
 	buffTaskSaveGroup["技能"] = {["ID"] = "队伍"}
 	greenTankAssigned = 1
@@ -148,12 +151,6 @@ function remove_useless_element(class)
 	if class_group[class]["name"] ~= nil then
 		class_group[class]["name"]=nil
 	end
-	
-	--[[
-	if buffTaskSaveGroup["技能"]["ID"] ~= nil then
-		buffTaskSaveGroup["技能"]["ID"] = nil
-	end
-	--]]
 end
 
 function cal_slice()
@@ -172,37 +169,41 @@ function cal_slice()
 			slice = currentNumOfParties
 			--class_last[key] = table.insert(0)
 		end
-		--print("分为几组：" .. value .."每个人负责几个队伍：" .. slice .. " ,最后一组：" .. reduant)
+					print("debug2")
+
+		print("分为几组：" .. value .."每个人负责几个队伍：" .. slice .. " ,最后一组：" .. reduant)
 		assignBuff(key, slice, reduant)
+					print("debug3")
+
 	end
 
 end
 
 function load_class_info(name, class, groups, slice, index)
-	if class == "德鲁伊" or class == "牧师" or class == "法师" then
-		local spell = spellname (class)
-		local includegroup = includeGroup(index, slice)
-		
-		if not contains(tankgroup, name) and not contains(shadowPriest, name) and includegroup ~= "" then
-			SendChatMessage(welcomeWords .." [" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", readChannel, "Common", name)
-			print(spell .. name .. includegroup)
-		end
-		
-		if class == "牧师" and index <= #tankgroup + 1 and (not contains(shadowPriest, name)) and includegroup ~= "" and checkZone() == "raid" then 
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", readChannel, "Common", name)
-		end
-		
-		if class == "德鲁伊" and index <= #tankgroup + 1 and includegroup ~= "" and not contains(tankgroup, name) and checkZone() == "raid" then 
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责单刷点刷[".. healTarget(1) .. "] ！捏好迅捷", readChannel, "Common", name)
-		elseif class == "德鲁伊" and contains(tankgroup, name) then
-			warLockTask["task"]["精灵之火（野性）】"] = name
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【精灵之火（野性）】 ！", readChannel, "Common", name)
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", readChannel, "Common", name)
+	print("debug" .. name .. class)
+	if class == "德鲁伊" then	
+		if contains(tankgroup, name) then
+			sendMessageTank(name)
 			return index
-		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned < 7 then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
-			greenTankAssigned = greenTankAssigned + 1
+		else
+			local includegroup = includeGroup(index, slice, name, class)		
+			sendMessageBuff(name, includegroup, class)
+			sendMessageHeal(name)
+			return index + 1
 		end
+	elseif class == "牧师" then
+		if contains(shadowPriest, name) == false then
+			local includegroup = includeGroup(index, slice, name, class)		
+			sendMessageBuff(name, includegroup, class)
+			sendMessageHeal(name)
+			return index + 1
+		else
+			return index
+		end
+	elseif class == "法师" then
+		local includegroup = includeGroup(index, slice, name, class)
+		print("inclu" .. includegroup)
+		sendMessageBuff(name, includegroup, class)
 	elseif class == "术士" then
 		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", readChannel, "Common", name)
 		warLockTask["task"][warlockSpell[(index - 1) % 4 + 1]] = name
@@ -229,53 +230,40 @@ function load_class_info(name, class, groups, slice, index)
 			else
 				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", readChannel, "Common", name)
 			end
+		--[[
 		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned <7 then
 			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
 			greenTankAssigned = greenTankAssigned + 1
+		--]]
 		end
 	end
 	return index + 1
 end
 
-function buffSaver(name, index, slice, class)
-	local spell = ""
-	if class == "德鲁伊" then
-		return " <<野性赐福>>爪子"
-	elseif class == "牧师" then
-		return "<<耐力，精神，暗抗>>"
-	elseif class == "法师" then
-		return "<<智力,抑制>>"
-	end
-end
-
-function spellname(class)
-	if class == "德鲁伊" then
-		return " <<野性赐福>>爪子"
-	elseif class == "牧师" then
-		return "<<耐力，精神，暗抗>>"
-	elseif class == "法师" then
-		return "<<智力,抑制>>"
-	end
-end
-
-function includeGroup(index, slice)
+function includeGroup(index, slice, name, class)
 	local includegroup = ""	
+	local spell = spellname(class)
 	for i=(index - 1)  * slice + 1, index * slice do
 			if i < 9 then
 				includegroup = includegroup .. "[".. i .."]"
+				buff_order[tostring(i)] = {[name] = spell}
+			else
+				local doSub = i - 8
+				includegroup = includegroup .. "[".. doSub .."]"
+				buff_order[tostring(doSub)] = {[name] = spell}		
 			end
 		end
 	return includegroup
 end
 
-function healTarget(index)
-	--print("index" .. index .. " #tank" .. #tankgroup)
-	if index <= #tankgroup then
-		return tankgroup[index]
-	elseif index == (#tankgroup + 1) then
-		return aoeMage
+function spellname(class)
+	if class == "德鲁伊" then
+		return " <<爪子>>"
+	elseif class == "牧师" then
+		return "<<耐力，精神，暗抗>>"
+	elseif class == "法师" then
+		return "<<智力,抑制>>"
 	end
-	return ""
 end
 
 function checkZone()
@@ -308,6 +296,7 @@ function setTankGroup(name, subgroup, class)
 	if subgroup == 1 then
 		if class == "战士" or class == "德鲁伊" then
 			tankgroup[#tankgroup + 1] = name
+			print("tank setted" .. name .. class)
 		end
 	end
 end
@@ -328,15 +317,6 @@ function reArrageTank(tankgroup)
 			tankgroup[i] = temp
 		end
 	end
-end
-
-function checkIndex(group, element)
-	for i=1, #group do
-		if group[i] == element then
-			return i
-		end
-	end
-	return 0
 end
 
 lootMasters = {"枫叶牛", "枫叶老虎", "从前的猫", "啊我太难了", "吃了一个大龙", "开心的土豆", "丶三营长", "托尼托尼", "罗罗诺亚","大门五郎","开心的萝卜", "艾泽拉夜刃", "大角顶你"}

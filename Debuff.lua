@@ -73,8 +73,8 @@ function checkPersonalBuff(personBuffCheckList)
 		end
 	end
 	
-	local fireTotem = "火焰防护图腾"
-	local naturalTotem = "自然防护图腾"
+	local fireTotem = "火焰抗性"
+	local naturalTotem = "自然抗性"
 	
 	if not contains(currentBuffList, fireTotem) and checkZone() == "raid" then
 		SendChatMessage(welcomeWords .. "插" .. fireTotem .. "!", "WHISPER", "Common", myName)

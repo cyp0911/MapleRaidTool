@@ -17,9 +17,9 @@ end
 SLASH_MPTool1 = "/mp"; -- new slash command for showing framestack tool
 
 --分配BUFF，默认WHISPER
-readChannel = "WHISPER" 
+readChannel = "SAY" 
 --组团工具，GUILD
-inviteAnnouce = "GUILD"
+inviteAnnouce = "SAY"
 
 local frame = CreateFrame("Frame")
 local content ="归来公会一团，每周50分钟通BWL，活动时间每周日晚上8点，DKP，新人补分机制，组织世界BUFF，会内气氛和谐，活动很多，世界BOSS，马拉松等~有兴趣联系我~"
@@ -37,7 +37,7 @@ cBuff = {"泰坦合剂", "萃取智慧", "至高能量"}
 --frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 frame:RegisterEvent("MINIMAP_PING")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterEvent("ADDON_LOADED")
+--frame:RegisterEvent("ADDON_LOADED")
 
 
 
@@ -309,24 +309,6 @@ preTextframe.texture:SetAllPoints(true)
 preTextframe.text = preTextframe:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 preTextframe.text:SetPoint("BOTTOM", preTextframe, "TOP", 0, 0)
 preTextframe.text:SetText("喊话前缀：")
-
-
-
---[[
-backLayerFrame.ckBtn = CreateFrame("CheckButton", "myCheckButton_GlobalName", parentFrame, "ChatConfigCheckButtonTemplate");
-backLayerFrame.ckBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -230);
---backLayerFrame.ckBtn:SetSize(140,40);
-myCheckButton_GlobalName:SetText('世界BOSS组队');
-backLayerFrame.ckBtn.tooltip = "This is where you place MouseOver Text.";
---backLayerFrame.ckBtn:SetNormalFontObject("GameFontNormalLarge");
---backLayerFrame.ckBtn:SetHighlightFontObject("GameFontHighLightLarge");
-backLayerFrame.ckBtn:SetScript("OnClick", function()
-				print("checked")
-            end)
---]]		
-
-
---backLayerFrame:Hide();
 
 SlashCmdList["MPTool"] = function()   
 	if backLayerFrame:IsShown() then
