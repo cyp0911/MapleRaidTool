@@ -48,7 +48,7 @@ function notifyRaid()
 	if UnitInRaid("player") then
 		for units = 1, currentMembers do
 			local name,rank,subgroup,level,class = GetRaidRosterInfo(units)
-			if people_buff[name] and people_buff[name]["buff数量"]>0 then		
+			if people_buff[name]["ID"] == name and people_buff[name]["buff数量"] > 0 then		
 				SendChatMessage("你有: " .. people_buff[name]["buff数量"] .. "个世界BUFF", "WHISPER", "Common", name)
 				SendChatMessage("你的世界buff为: " .. people_buff[name]["所加buff"], "WHISPER", "Common", name)
 				SendChatMessage("应加分值: " .. people_buff[name]["buff加分"], "WHISPER", "Common", name)

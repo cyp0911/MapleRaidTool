@@ -107,6 +107,7 @@ function checkBuffs()
 			people_buff[name]["等级"] = level
 			people_buff[name]["时间"] = date("%m/%d/%y %H:%M:%S")
 			people_buff[name]["所加buff"] = buffs
+			people_buff[name]["ID"] = name
 			people_buff[name]["buff数量"] = wholeBuffNum
 			
 			table.sort(people_buff,function(a,b) return a[name]["编号"]<b[name]["编号"] end )
