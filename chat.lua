@@ -1,35 +1,61 @@
 signGroup = {"{rt8}", "{rt1}", "{rt2}", "{rt3}"}
 
 function sendMessageBuff(name, includegroup, class)
-	print("debug333")
 	local spell = spellname(class)
-	print("spell" .. spell)
-	SendChatMessage(welcomeWords .." [" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", readChannel, "Common", name)
+	--SendChatMessage(welcomeWords .." [" .. name .. "],你负责第" .. includegroup .. "队的" .. spell .. "BUFF！", readChannel, "Common", name)
 end
 
 
 function sendMessageHeal(name, class, index)
 	if class == "德鲁伊" then
-		if checkZone == "raid" then
+		if checkZone() == "raid" then
 			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程看住[".. healTarget(1) .. "] 或者BOSS目标T！捏好迅捷", readChannel, "Common", name)
-		elseif checkZone == "green" then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
-			print("greenIndex" .. greenTankAssigned)
+			if checkZone() == "bwl" then
+				SendChatMessage(welcomeWords .. "[" .. name .. "], 红龙后面小怪，注意睡小红帽", readChannel, "Common", name)
+			end
+		elseif checkZone() == "green" then
+			if greenTankAssigned < 7 then
+				SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
+				print("greenIndex" .. greenTankAssigned)
+			end
 			greenTankAssigned = greenTankAssigned + 1
 		end
 	elseif class == "牧师" then
-		if checkZone == "raid" then
+		if checkZone() == "raid" then
 			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责[".. healTarget(index) .. "] 的真言术盾，同时刷死他！", readChannel, "Common", name)
-		elseif checkZone == "green" then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],刷好第[".. group_buff[name]["小队"] .. "] 队！提前上盾，不要被晕！", readChannel, "Common", name)
+		elseif checkZone() == "green" then
+			SendChatMessage(welcomeWords .. "[" .. name .. "],治疗祷言刷好第[".. group_buff[name]["小队"] .. "] 队！提前上盾，不要被晕！", readChannel, "Common", name)
+		end
+	elseif class == "萨满祭司" then
+		if checkZone() == "green" then
+			if greenTankAssigned < 7 then
+				SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
+				print("greenIndex" .. greenTankAssigned)
+			end
+			greenTankAssigned = greenTankAssigned + 1
+		elseif checkZone() == "green" then
+			if index <= 4 then
+				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", readChannel, "Common", name)
+			else
+				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", readChannel, "Common", name)
+			end
 		end
 	end
 	
 end
 function sendMessageTank(name)
-	warLockTask["task"]["精灵之火（野性）】"] = name
-	SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【精灵之火（野性）】 ！", readChannel, "Common", name)
-	SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", readChannel, "Common", name)
+	if class == "德鲁伊" then
+		warLockTask["task"]["精灵之火（野性）】"] = name
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【精灵之火（野性）】 ！", readChannel, "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", readChannel, "Common", name)
+	elseif class == "战士" then
+		if name == tankgroup[2] then
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", readChannel, "Common", name)
+			warLockTask["task"]["破甲攻击"] = name
+			warLockTask["task"]["挫志怒吼"] = name
+			warLockTask["task"]["夜幕"] = name
+		end
+	end
 end
 
 function checkIndex(group, element)

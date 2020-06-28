@@ -77,14 +77,16 @@ function loadRaidGroup()
 			group_buff[name] = {["ID"] = name; ["职业"] = class}
 			group_buff[name]["小队"] = subgroup
 			class_group[class][name] = units
-			num_class[class] = num_class[class] + 1
 			remove_useless_element(class)
 			setTankGroup(name, subgroup, class)
+			if contains(tankgroup, name) == false then
+				num_class[class] = num_class[class] + 1
+			else
+				print("in tank" .. name)
+			end
 		end		
 		reArrageTank(tankgroup)
 		cal_slice()
-				print("debug1")
-
 	elseif UnitInParty("player") then
 		print("您在队伍内！")
 	else
@@ -139,7 +141,6 @@ function initial_class_table()
 	num_class["德鲁伊"] = 0
 	num_class["术士"] = 0
 	
-	buff_order["1"] = {["name"] = ""}
 	warLockTask["task"] = {["spell"] = "name"}
 	buffTaskSaveGroup["技能"] = {["ID"] = "队伍"}
 	greenTankAssigned = 1
@@ -156,27 +157,22 @@ end
 function cal_slice()
 	slice_class = {}
 	class_last = {}
-	for key, value in pairs(num_class) do
+	for class, numberClass in pairs(num_class) do
 		--print(key .. value)
 		local reduant = 0
 		local slice = 0
-		if value ~=0 then
-			reduant = currentNumOfParties % value
-			slice = currentNumOfParties / value
+		if numberClass ~=0 then
+			reduant = currentNumOfParties % numberClass
+			slice = currentNumOfParties / numberClass
 			slice = math.ceil(slice)	
 		else
 			reduant = 0
 			slice = currentNumOfParties
 			--class_last[key] = table.insert(0)
 		end
-					print("debug2")
-
-		print("分为几组：" .. value .."每个人负责几个队伍：" .. slice .. " ,最后一组：" .. reduant)
-		assignBuff(key, slice, reduant)
-					print("debug3")
-
+		print("分为几组：" .. numberClass .."每个人负责几个队伍：" .. slice .. " ,最后一组：" .. reduant)
+		assignBuff(class, slice, reduant)
 	end
-
 end
 
 function load_class_info(name, class, groups, slice, index)
@@ -188,54 +184,39 @@ function load_class_info(name, class, groups, slice, index)
 		else
 			local includegroup = includeGroup(index, slice, name, class)		
 			sendMessageBuff(name, includegroup, class)
-			sendMessageHeal(name)
+			sendMessageHeal(name, class, index)
 			return index + 1
 		end
 	elseif class == "牧师" then
 		if contains(shadowPriest, name) == false then
-			local includegroup = includeGroup(index, slice, name, class)		
+			local includegroup = includeGroup(index, slice, name, class)
 			sendMessageBuff(name, includegroup, class)
-			sendMessageHeal(name)
+			sendMessageHeal(name, class, index)
 			return index + 1
 		else
 			return index
 		end
 	elseif class == "法师" then
 		local includegroup = includeGroup(index, slice, name, class)
-		print("inclu" .. includegroup)
 		sendMessageBuff(name, includegroup, class)
 	elseif class == "术士" then
 		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", readChannel, "Common", name)
 		warLockTask["task"][warlockSpell[(index - 1) % 4 + 1]] = name
-		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责拉【".. includeGroup(index, slice) .. "】队的队友", readChannel, "Common", name)
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责拉【".. includeGroup(index, slice, name, class) .. "】队的队友", readChannel, "Common", name)
 	elseif class == "猎人" then
 		if checkZone() == "raid" then 
 			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责第[".. index .. "] 次宁神", readChannel, "Common", name)
 		end
-		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[(index - 1)%4 +1] .. ">", readChannel, "Common", name)
-	elseif class == "战士" and contains(tankgroup, name) then
-		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责拉<" .. signGroup[checkIndex(tankgroup,name)] .. ">", readChannel, "Common", name)
-		if name == tankgroup[2] then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你注意上【破甲】，【挫志怒吼】和带上【夜幕】", readChannel, "Common", name)
-			warLockTask["task"]["破甲攻击"] = name
-			warLockTask["task"]["挫志怒吼"] = name
-			warLockTask["task"]["夜幕"] = name
+		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责卡<" .. signGroup[(index - 1)%4 +1] .. ">的视野和仇恨", readChannel, "Common", name)
+		if index == 1 then
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责卡<" .. signGroup[(index - 1)%4 +1] .. ">的视野和仇恨", readChannel, "Common", name)
 		end
+	elseif class == "战士" and contains(tankgroup, name) then
+		sendMessageTank(name)
 	elseif class == "潜行者" and checkZone() == "bwl" then
 		SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", readChannel, "Common", name)
 	elseif class == "萨满祭司" then
-		if checkZone() == "bwl" then
-			if index <=4 then
-				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[1] .. ">", readChannel, "Common", name)
-			else
-				SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本任务：<" .. shamanTask[2] .. ">", readChannel, "Common", name)
-			end
-		--[[
-		elseif checkZone() == "green" and not contains(tankgroup, name) and greenTankAssigned <7 then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],绿龙刷T任务分配：全力负责坦克：<" .. tankgroup[(greenTankAssigned-1)%3 + 1] .. ">", readChannel, "Common", name)
-			greenTankAssigned = greenTankAssigned + 1
-		--]]
-		end
+		sendMessageHeal(name, class, index)
 	end
 	return index + 1
 end
@@ -244,13 +225,17 @@ function includeGroup(index, slice, name, class)
 	local includegroup = ""	
 	local spell = spellname(class)
 	for i=(index - 1)  * slice + 1, index * slice do
-			if i < 9 then
+			if i < 9 and i <= currentNumOfParties then
 				includegroup = includegroup .. "[".. i .."]"
-				buff_order[tostring(i)] = {[name] = spell}
+				addDataToTable(buff_order, i, spell, name)
+			elseif i < 9 and i > currentNumOfParties then
+				local backI = i - currentNumOfParties
+				includegroup = includegroup .. "[".. backI .."]"
+				addDataToTable(buff_order, backI, spell, name)
 			else
 				local doSub = i - 8
 				includegroup = includegroup .. "[".. doSub .."]"
-				buff_order[tostring(doSub)] = {[name] = spell}		
+				addDataToTable(buff_order, doSub, spell, name)
 			end
 		end
 	return includegroup
@@ -258,11 +243,13 @@ end
 
 function spellname(class)
 	if class == "德鲁伊" then
-		return " <<爪子>>"
+		return "<爪子>"
 	elseif class == "牧师" then
-		return "<<耐力，精神，暗抗>>"
+		return "<耐力，精神，暗抗>"
 	elseif class == "法师" then
-		return "<<智力,抑制>>"
+		return "<智力,抑制>"
+	elseif class == "术士" then
+		return "<召唤队友>"
 	end
 end
 
@@ -291,6 +278,13 @@ function checkZone()
 	return ""
 end
 
+function addDataToTable(tableTo, first, second, third)
+	if tableTo[tostring(first)] == nil then
+		tableTo[tostring(first)] = {[second] = third}
+	else
+		tableTo[tostring(first)][second] = third
+	end
+end
 
 function setTankGroup(name, subgroup, class)
 	if subgroup == 1 then
