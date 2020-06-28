@@ -5,10 +5,11 @@
 ## Notes: Assign task, raid helper
 ## DefaultState: enabled
 ## SavedVariables: group_buff, class_group, num_class, slice_class, class_last, warLockTask, configs, buffTaskSaveGroup, guildRosterDB
-## SavedVariablesPerCharacter: people_buff
+## SavedVariablesPerCharacter: people_buff, buff_order
 ## Author: Yinpeng Chen
 
-MapleRaidTool.lua
-Widgets.lua
-Debuff.lua
+main.lua
+buff.lua
+debuff.lua
 invite.lua
+chat.lua

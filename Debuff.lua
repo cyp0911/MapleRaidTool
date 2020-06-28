@@ -60,26 +60,39 @@ function checkDebuffFromList(debuffCheckList)
 end
 
 function checkPersonalBuff(personBuffCheckList)
+	print("dida")
 	currentBuffList = {}
 	local myName = UnitName("player")
 	for i = 1, 32 do
 		local mybuff = UnitBuff(myName, i)
 		table.insert(currentBuffList, mybuff)
 	end
-				
+		
 	for i = 1, #personBuffCheckList do
 		if not contains(currentBuffList, personBuffCheckList[i]) then
 			SendChatMessage(welcomeWords .. "自身BUFF还差：" .. personBuffCheckList[i], "WHISPER", "Common", myName)
 		end
 	end
 	
-	local fireTotem = "火焰防护图腾"
-	local naturalTotem = "自然防护图腾"
+	local fireTotem = "火焰抗性"
+	local naturalTotem = "自然抗性"
 	
 	if not contains(currentBuffList, fireTotem) and checkZone() == "raid" then
 		SendChatMessage(welcomeWords .. "插" .. fireTotem .. "!", "WHISPER", "Common", myName)
 	elseif not contains(currentBuffList, naturalTotem) and checkZone() == "green" then
 		SendChatMessage(welcomeWords .. "插" .. naturalTotem .. "!", "WHISPER", "Common", myName)
+	end
+end
+
+function raidBuffAnounce()
+	for i = 1, 8 do
+		if buff_order[tostring(i)] ~= nil then
+			local partyText = "【" .. tostring(i) .. "】队Buff："
+			for spell, name in pairs(buff_order[tostring(i)]) do
+				partyText = partyText .. spell .. "-(" .. name .. "), " 
+			end
+			SendChatMessage(partyText, "RAID", "Common", name)
+		end
 	end
 end
 

@@ -37,7 +37,7 @@ cBuff = {"泰坦合剂", "萃取智慧", "至高能量"}
 --frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 frame:RegisterEvent("MINIMAP_PING")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterEvent("ADDON_LOADED")
+--frame:RegisterEvent("ADDON_LOADED")
 
 
 
@@ -107,6 +107,7 @@ function checkBuffs()
 			people_buff[name]["等级"] = level
 			people_buff[name]["时间"] = date("%m/%d/%y %H:%M:%S")
 			people_buff[name]["所加buff"] = buffs
+			people_buff[name]["ID"] = name
 			people_buff[name]["buff数量"] = wholeBuffNum
 			
 			table.sort(people_buff,function(a,b) return a[name]["编号"]<b[name]["编号"] end )
@@ -191,10 +192,11 @@ backLayerFrame.clBtn:SetScript("OnClick", function()
 backLayerFrame.coBtn = CreateFrame("Button", nil, backLayerFrame, "GameMenuButtonTemplate");
 backLayerFrame.coBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -230);
 backLayerFrame.coBtn:SetSize(140,40);
-backLayerFrame.coBtn:SetText('检查自身Buff');
+backLayerFrame.coBtn:SetText('检查Buff');
 backLayerFrame.coBtn:SetNormalFontObject("GameFontNormalLarge");
 backLayerFrame.coBtn:SetHighlightFontObject("GameFontHighLightLarge");
 backLayerFrame.coBtn:SetScript("OnClick", function()
+				raidBuffAnounce()
 				checkPersonalBuff(personBuffCheckList)
             end)
 			
@@ -309,24 +311,6 @@ preTextframe.texture:SetAllPoints(true)
 preTextframe.text = preTextframe:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 preTextframe.text:SetPoint("BOTTOM", preTextframe, "TOP", 0, 0)
 preTextframe.text:SetText("喊话前缀：")
-
-
-
---[[
-backLayerFrame.ckBtn = CreateFrame("CheckButton", "myCheckButton_GlobalName", parentFrame, "ChatConfigCheckButtonTemplate");
-backLayerFrame.ckBtn:SetPoint("CENTER", backLayerFrame, "TOP",100, -230);
---backLayerFrame.ckBtn:SetSize(140,40);
-myCheckButton_GlobalName:SetText('世界BOSS组队');
-backLayerFrame.ckBtn.tooltip = "This is where you place MouseOver Text.";
---backLayerFrame.ckBtn:SetNormalFontObject("GameFontNormalLarge");
---backLayerFrame.ckBtn:SetHighlightFontObject("GameFontHighLightLarge");
-backLayerFrame.ckBtn:SetScript("OnClick", function()
-				print("checked")
-            end)
---]]		
-
-
---backLayerFrame:Hide();
 
 SlashCmdList["MPTool"] = function()   
 	if backLayerFrame:IsShown() then
