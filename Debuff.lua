@@ -83,3 +83,15 @@ function checkPersonalBuff(personBuffCheckList)
 	end
 end
 
+function raidBuffAnounce()
+	print("antest")
+	for i = 1, 8 do
+		print("antest2" .. i)
+		local partyText = "【" .. tostring(i) .. "】队Buff："
+		for spell, name in pairs(buff_order[tostring(i)]) do
+			partyText = partyText .. spell .. "-(" .. name .. "), " 
+		end
+		SendChatMessage(partyText, "RAID", "Common", name)
+	end
+end
+

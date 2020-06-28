@@ -179,7 +179,7 @@ function load_class_info(name, class, groups, slice, index)
 	print("debug" .. name .. class)
 	if class == "德鲁伊" then	
 		if contains(tankgroup, name) then
-			sendMessageTank(name)
+			sendMessageTank(name, class)
 			return index
 		else
 			local includegroup = includeGroup(index, slice, name, class)		
@@ -201,20 +201,30 @@ function load_class_info(name, class, groups, slice, index)
 		sendMessageBuff(name, includegroup, class)
 	elseif class == "术士" then
 		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责全程上<<".. warlockSpell[(index - 1) % 4 + 1] .. ">>", readChannel, "Common", name)
+		addDataToTable(buff_order,"诅咒",warlockSpell[(index - 1) % 4 + 1], name)
 		warLockTask["task"][warlockSpell[(index - 1) % 4 + 1]] = name
 		SendChatMessage(welcomeWords .. "[" .. name .. "],你负责拉【".. includeGroup(index, slice, name, class) .. "】队的队友", readChannel, "Common", name)
 	elseif class == "猎人" then
-		if checkZone() == "raid" then 
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责第[".. index .. "] 次宁神", readChannel, "Common", name)
+		if checkZone() == "city" then
+			local times = (index - 1) % 3 + 1
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责第[".. times .. "] 次宁神", readChannel, "Common", name)
+			addDataToTable(buff_order,"宁神",name, tostring(times))
 		end
 		SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责卡<" .. signGroup[(index - 1)%4 +1] .. ">的视野和仇恨", readChannel, "Common", name)
+		addDataToTable(buff_order,"拉怪仇恨",signGroup[(index - 1)%4 +1], name)
 		if index == 1 then
-			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程负责卡<" .. signGroup[(index - 1)%4 +1] .. ">的视野和仇恨", readChannel, "Common", name)
+			SendChatMessage(welcomeWords .. "[" .. name .. "],你全程上标和开怪，管团长要A：上标顺序{rt8}, {rt1}, {rt2}, {rt3}", readChannel, "Common", name)
+			addDataToTable(buff_order,"上标猎人","整体", name)
+			if checkZone() == "mc" then
+				SendChatMessage(welcomeWords .. "[" .. name .. "],MC四人bang：上标顺序{rt8}, {rt2}, {rt3}, {rt5}", readChannel, "Common", name)
+				addDataToTable(buff_order,"MC上标猎人","四人bang", name)
+			end
 		end
 	elseif class == "战士" and contains(tankgroup, name) then
-		sendMessageTank(name)
-	elseif class == "潜行者" and checkZone() == "bwl" then
+		sendMessageTank(name, class)
+	elseif class == "潜行者" and checkZone() == "city" then
 		SendChatMessage(welcomeWords .. "[" .. name .. "],本次副本陷阱任务：<" .. rogueTask[(index - 1) % 4 + 1] .. ">", readChannel, "Common", name)
+		addDataToTable(buff_order,"DZ任务",rogueTask[(index - 1) % 4 + 1], name)
 	elseif class == "萨满祭司" then
 		sendMessageHeal(name, class, index)
 	end
@@ -286,11 +296,16 @@ function addDataToTable(tableTo, first, second, third)
 	end
 end
 
+function saveBuffs(tasks, name, content, number)
+	if tasks == "上标" then
+		addDataToTable(buff_order,tasks, content, name)
+	end
+end
+
 function setTankGroup(name, subgroup, class)
 	if subgroup == 1 then
 		if class == "战士" or class == "德鲁伊" then
 			tankgroup[#tankgroup + 1] = name
-			print("tank setted" .. name .. class)
 		end
 	end
 end
